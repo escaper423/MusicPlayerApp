@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/colorPrimary"
+    android:foreground="?android:attr/selectableItemBackgroundBorderless"
+    android:foregroundTint="@android:color/white"
+    android:padding="10dp"
+    android:elevation="15dp"
+
+    android:id = "@+id/track_list"
+
+    >
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/musicImage"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/ic_music_basic" />
+
+    <TextView
+        android:id="@+id/musicTitle"
+        android:layout_width="238dp"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/musicImage"
+        android:paddingLeft="10dp"
+        android:text="Untitled Title"
+        android:textColor="#ffffff"
+        android:textSize="16sp"
+        />
+
+    <TextView
+        android:id="@+id/musicArtist"
+        android:layout_width="238dp"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/musicImage"
+        android:layout_below="@+id/musicTitle"
+        android:paddingLeft="10dp"
+        android:text="Various Artist"
+        android:textColor="#ffffff"
+        android:textSize="13sp"
+        />
+
+    <TextView
+        android:id="@+id/musicDuration"
+        android:layout_width="238dp"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/musicImage"
+        android:layout_below="@+id/musicArtist"
+        android:paddingLeft="10dp"
+        android:text="0:00"
+        android:textColor="#ffffff"
+        android:textSize="11sp"
+        />
+
+    <android.support.v7.widget.ActionMenuView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/musicTitle"
+        android:paddingLeft="80dp"
+        >
+
+    </android.support.v7.widget.ActionMenuView>
+</RelativeLayout>

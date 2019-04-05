@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">MusicPlayerProject</string>
+    <string name="tracks">Tracks</string>
+    <string name="artists">Artists</string>
+    <string name="bookmarks">Bookmarks</string>
+    <string name="filesystem">Folder</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="pic">Description</string>
+    <string name="now_playing">Now Playing</string>
+
+</resources>
