@@ -66,7 +66,7 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.View
     public void onBindViewHolder(@NonNull ViewHolder viewHolder,final int i) {
         Log.d(tag,"onBildViewholder Called.");
         Glide.with(mContext)
-                .load(musicList.get(i).getMusicPath())
+                .load(musicList.get(i).getMusicImage())
                 .placeholder(R.drawable.ic_music_basic)
                 .into(viewHolder.musicImage);
 
@@ -80,16 +80,14 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.View
             {
                 //Play Music Function
                 Intent in = new Intent(mContext,PlayActivity.class);
+                in.putExtra("Index",i);
+                /*
                 in.putExtra("music_title",musicList.get(i).getMusicTitle());
                 in.putExtra("music_artist",musicList.get(i).getMusicArtist());
                 in.putExtra("music_album",musicList.get(i).getMusicAlbum());
                 in.putExtra("music_duration",musicList.get(i).getMusicDuration());
                 in.putExtra("music_path",musicList.get(i).getMusicPath());
-
-                Log.d(TAG,"Title : " + in.getStringExtra("music_title"));
-                Log.d(TAG,"Artist : " + in.getStringExtra("music_artist"));
-                Log.d(TAG,"Album : " + in.getStringExtra("music_album"));
-                Log.d(TAG,"Duration : " + in.getStringExtra("music_duration"));
+*/
                 mContext.startActivity(in);
             }
         });

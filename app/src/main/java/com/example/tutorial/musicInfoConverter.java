@@ -7,9 +7,9 @@ public class musicInfoConverter {
     public musicInfoConverter(){
     }
 
-    /*private int getProgressFormSpeedMult(float mult){
-        return (int)(mult * 100.5f);
-    }*/
+    public static int getProgressFormSpeedMult(float mult){
+        return (int)((mult * 100f) - 25f);
+    }
 
     public static float getSpeedMultFromProgress(int progress){
         return roundWithDecimalPoints((float)progress/100.0f + 0.25f , 2);

@@ -80,14 +80,14 @@ public class TrackFragment extends Fragment {
         musicManager = MusicManager.getInstance();
         mContext = getContext();
         checkPermission();
-        musicManager.getMusic(getContext());
-        Collections.sort(musicManager.getMusicList(),new Comparator<Music>(){
+        musicManager.initMusicList(getContext());
+        /*Collections.sort(musicManager.getMusicList(),new Comparator<Music>(){
             @Override
             public int compare(Music m1, Music m2){
                 return m1.getMusicTitle().toLowerCase().compareTo(m2.getMusicTitle().toLowerCase());
             }
-        });
-        Log.d("MusicList","Music List Size : "+musicManager.getMusicList().size());
+        });*/
+        Log.d("MusicList","Music List Size : "+musicManager.getMusicSize());
     }
 
 }

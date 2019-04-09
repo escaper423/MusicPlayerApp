@@ -156,7 +156,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:max="175"
-                android:progress="75" />
+                android:progress="750" />
 
             <TextView
                 android:id="@+id/speed_multiplier"
