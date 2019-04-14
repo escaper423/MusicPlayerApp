@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -23,10 +24,21 @@ class MusicManager {
     private static MusicManager musicManager = null;
 
     private ArrayList<Music> musicList;
+    private MediaPlayer mediaPlayer = new MediaPlayer();
 
     //Playback speed, shuffle status
     private float playbackSpeed = 1.0f;
     private boolean isShuffling = false;
+
+    //Currently Playing Index
+    private int currentIndex;
+
+    public int getCurrentIndex(){
+        return currentIndex;
+    }
+    public void setCurrentIndex(int i){
+        currentIndex = i;
+    }
 
     public boolean isShuffling(){
         return isShuffling;
@@ -34,6 +46,7 @@ class MusicManager {
 
     public void setPlaybackSpeed(float f) {
         playbackSpeed = f;
+        mediaPlayer.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed(playbackSpeed));
     }
 
     public float getPlaybackSpeed() {
@@ -55,6 +68,9 @@ class MusicManager {
         return musicManager;
     }
 
+    public MediaPlayer getMusicPlayer(){
+        return mediaPlayer;
+    }
     public Music getMusicByIndex(int i) {
         return musicList.get(i);
     }

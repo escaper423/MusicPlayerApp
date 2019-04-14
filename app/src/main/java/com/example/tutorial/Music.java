@@ -2,6 +2,8 @@ package com.example.tutorial;
 
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 
 public class Music {
@@ -42,6 +44,7 @@ public class Music {
     public String getMusicPath() {
         return musicPath;
     }
+
     public int getMusicIndex() { return musicIndex; }
 
     public Bitmap getMusicImage() {

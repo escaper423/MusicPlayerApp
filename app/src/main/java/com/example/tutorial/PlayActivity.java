@@ -4,11 +4,12 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Handler;
-import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.media.MediaDescriptionCompat;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.AppCompatSeekBar;
@@ -30,6 +31,9 @@ public class PlayActivity extends AppCompatActivity {
     private ImageView musicImage;
 
     private MusicManager musicManager;
+    private MediaPlayer mediaPlayer;
+    private Intent serviceIntent;
+
     //Textviews to be displayed about duration, speed multiplication
     private TextView speedMultText;
     private TextView currentDurationText;
@@ -40,16 +44,12 @@ public class PlayActivity extends AppCompatActivity {
     int playButtonIcon, playButtonBackgroundColor;
     private FloatingActionButton playButton;
 
-    private MediaPlayer mediaPlayer;
-
     private AppCompatSeekBar durationBar;
     private AppCompatSeekBar speedBar;
 
 
     AudioManager audiomManager;
     float actVolume, curVolume, maxVolume;
-    private int currentIndex;
-    private boolean isShuffling = false;
     private CurrentStatus currentStatus;
 
     Runnable runnable;
@@ -65,7 +65,7 @@ public class PlayActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d(TAG,"onCreate");
+        Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play);
         musicImage = findViewById(R.id.imageView);
@@ -84,22 +84,29 @@ public class PlayActivity extends AppCompatActivity {
         speedBar = findViewById(R.id.speed_multiplier_bar);
         handler = new Handler();
         musicManager = MusicManager.getInstance();
+        mediaPlayer = musicManager.getMusicPlayer();
+        initMusicPlayer();
 
         Intent in = getIntent();
-        currentIndex = in.getIntExtra("Index",-1);
+        musicManager.setCurrentIndex(in.getIntExtra("Index", -1));
 
+        //Volume Control
         audiomManager = (AudioManager) getSystemService(AUDIO_SERVICE);
         actVolume = (float) audiomManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         maxVolume = (float) audiomManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
         curVolume = actVolume / maxVolume;
         this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
+
         currentStatus = CurrentStatus.PLAYING;
-        initMusicPlayer();
+        if (musicManager.isShuffling() == true) {
+            shuffleButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.holo_red_dark, null)));
+        }
     }
 
     private void initMusicPlayer() {
+        int currentIndex = musicManager.getCurrentIndex();
         Music m = musicManager.getMusicByIndex(currentIndex);
-        Log.d(TAG,"Music Index : "+m.getMusicIndex());
+        Log.d(TAG, "Music Index : " + m.getMusicIndex());
         if (currentIndex >= 0 && currentIndex < musicManager.getMusicSize()) {
 
             Glide.with(this)
@@ -111,21 +118,21 @@ public class PlayActivity extends AppCompatActivity {
             musicArtist.setText(m.getMusicArtist());
             musicAlbum.setText(m.getMusicAlbum());
             musicDuration.setText(musicInfoConverter.durationConvert(m.getMusicDuration()));
-
             durationBar.setProgress(0);
             durationBar.setMax(m.getMusicDuration());
             durationBar.setKeyProgressIncrement(1000);
             currentDurationText.setText(musicInfoConverter.durationConvert(0));
             speedBar.setProgress(musicInfoConverter.getProgressFormSpeedMult(musicManager.getPlaybackSpeed()));
             speedBar.setKeyProgressIncrement(1);
-            speedMultText.setText(Float.toString(musicInfoConverter.getSpeedMultFromProgress(speedBar.getProgress()))+'x');
-            loadMusic(m.getMusicPath());
+            speedMultText.setText(Float.toString(musicInfoConverter.getSpeedMultFromProgress(speedBar.getProgress())) + 'x');
+            initProgressBars();
+
         } else
             Log.d(TAG, "not found.");
 
     }
 
-    private void loadMusic(String path) {
+    private void initProgressBars() {
         durationBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekbar, int i, boolean b) {
@@ -142,10 +149,8 @@ public class PlayActivity extends AppCompatActivity {
             @Override
             public void onStopTrackingTouch(SeekBar seekbar) {
                 mediaPlayer.seekTo(durationBar.getProgress());
-
             }
         });
-
         speedBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -162,61 +167,37 @@ public class PlayActivity extends AppCompatActivity {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 musicManager.setPlaybackSpeed(musicInfoConverter.getSpeedMultFromProgress(speedBar.getProgress()));
-                mediaPlayer.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed(musicManager.getPlaybackSpeed()));
-                Log.d(TAG,"Speed : "+musicManager.getPlaybackSpeed());
             }
         });
-        Uri uri = Uri.parse(path);
-        if(mediaPlayer == null) {
-            mediaPlayer = MediaPlayer.create(this, uri);
-            mediaPlayer.start();
-        }
-        else{
-            try{
-                mediaPlayer.reset();
-                mediaPlayer.setDataSource(this,uri);
-                mediaPlayer.prepareAsync();
-            }
-            catch(Exception e){
-                e.printStackTrace();
-            }
-        }
+    }
 
-        mediaPlayer.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed(musicManager.getPlaybackSpeed()));
-        mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mp) {
-                if (currentStatus == CurrentStatus.PLAYING)
-                    playMusic();
-            }
-        });
-        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                setBackground(CurrentStatus.PLAYING);
-                if (mediaPlayer.isLooping() == false)
-                    playNextMusic();
-            }
-        });
+    public void doPlayService(String action) {
+        serviceIntent = new Intent(this, PlayerService.class);
+        serviceIntent.setAction(action);
+        startService(serviceIntent);
     }
 
     private void playMusic() {
         setBackground(currentStatus);
         currentStatus = CurrentStatus.PLAYING;
-        mediaPlayer.start();
+        doPlayService(Actions.ACTION_PLAY);
         playCycle();
     }
 
-    private void playPrevMusic(){
-        currentIndex = currentIndex - 1;
-        if(currentIndex == -1)
-            currentIndex = musicManager.getMusicSize() - 1;
+    private void playPrevMusic() {
+        int ci = musicManager.getCurrentIndex();
+        ci = ci - 1;
+        if (ci == -1)
+            ci = musicManager.getMusicSize() - 1;
+        musicManager.setCurrentIndex(ci);
         initMusicPlayer();
+        playMusic();
     }
 
-    private void playNextMusic(){
-        currentIndex = (currentIndex + 1)%musicManager.getMusicSize();
+    private void playNextMusic() {
+        musicManager.setCurrentIndex((musicManager.getCurrentIndex() + 1) % musicManager.getMusicSize());
         initMusicPlayer();
+        playMusic();
     }
 
     private void setBackground(CurrentStatus curStatus) {
@@ -246,8 +227,7 @@ public class PlayActivity extends AppCompatActivity {
                     durationBar.setProgress(0);
                     currentDurationText.setText(musicInfoConverter.durationConvert(0));
                     mediaPlayer.seekTo(0);
-                }
-                else {
+                } else {
                     playPrevMusic();
                 }
                 break;
@@ -268,29 +248,22 @@ public class PlayActivity extends AppCompatActivity {
                 if (mediaPlayer.isLooping() == false) {
                     mediaPlayer.setLooping(true);
                     repeatButton.setImageDrawable(ContextCompat.getDrawable(getApplication(), R.drawable.ic_repeat_one_black_24dp));
-                    repeatButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.holo_red_dark,null)));
+                    repeatButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.holo_red_dark, null)));
                 } else {
                     mediaPlayer.setLooping(false);
                     repeatButton.setImageDrawable(ContextCompat.getDrawable(getApplication(), R.drawable.ic_repeat_black_24dp));
-                    repeatButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.white,null)));
+                    repeatButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.white, null)));
                 }
                 break;
             case R.id.btn_shuffle:
-                if(musicManager.isShuffling() == false){
-                    shuffleButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.holo_red_dark,null)));
+                if (musicManager.isShuffling() == false) {
+                    shuffleButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.holo_red_dark, null)));
                     musicManager.shuffleList();
-                    Log.d(TAG,"Music Index before Shuffle : "+currentIndex);
-                    currentIndex = musicManager.getPositionByIdx(currentIndex);
-                    Log.d(TAG,"Music Index after Shuffle : "+currentIndex);
-
-                }
-                else{
-                    shuffleButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.white,null)));
-                    currentIndex = musicManager.getMusicByIndex(currentIndex).getMusicIndex();
-                    Log.d(TAG, "Music Index before Disable Shuffle : "+currentIndex);
+                    musicManager.setCurrentIndex(musicManager.getPositionByIdx(musicManager.getCurrentIndex()));
+                } else {
+                    shuffleButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.white, null)));
+                    musicManager.setCurrentIndex(musicManager.getMusicByIndex(musicManager.getCurrentIndex()).getMusicIndex());
                     musicManager.shuffleList();
-                    Log.d(TAG,"Music Index after Disable Shuffle : "+currentIndex);
-
                 }
                 break;
         }
@@ -298,53 +271,42 @@ public class PlayActivity extends AppCompatActivity {
 
     //TODO : Must solve some problems with this thread
     public void playCycle() {
-        if(mediaPlayer != null) {
-            durationBar.setProgress(Math.min(durationBar.getMax(), mediaPlayer.getCurrentPosition()));
-            currentDurationText.setText(musicInfoConverter.durationConvert(Math.min(durationBar.getMax(), mediaPlayer.getCurrentPosition())));
+        if (mediaPlayer == null)
+            return;
+        durationBar.setProgress(Math.min(durationBar.getMax(), mediaPlayer.getCurrentPosition()));
+        currentDurationText.setText(musicInfoConverter.durationConvert(Math.min(durationBar.getMax(), mediaPlayer.getCurrentPosition())));
 
-            if (currentStatus == CurrentStatus.PLAYING) {
-                runnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        playCycle();
-                    }
-                };
-                handler.postDelayed(runnable, 100);
-            }
+        if (currentStatus == CurrentStatus.PLAYING) {
+            runnable = new Runnable() {
+                @Override
+                public void run() {
+                    playCycle();
+                }
+            };
+            handler.postDelayed(runnable, 250);
         }
     }
 
     @Override
     public void onResume() {
+        Log.d(TAG, "onResume Called");
         super.onResume();
     }
 
-    /*
-    @Override
-    public void onStop(){
-        super.onStop();
-        mediaPlayer.release();
-        mediaPlayer = null;
-    }
-    */
     @Override
     public void onPause() {
         super.onPause();
-
     }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
         handler.removeCallbacks(runnable);
-        mediaPlayer.stop();
-        mediaPlayer.release();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         handler.removeCallbacks(runnable);
-        mediaPlayer.release();
     }
 }
