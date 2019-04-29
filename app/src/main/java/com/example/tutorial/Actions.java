@@ -6,4 +6,5 @@ public class Actions {
     public static final String ACTION_PAUSE = "com.example.tutorial.pause";
     public static final String ACTION_RESUME = "com.example.tutorial.resume";
     public static final String ACTION_NEXT = "com.example.tutorial.next";
+    public static final String ACTION_END = "com.example.tutorial.end";
 }

@@ -1,5 +1,7 @@
 package com.example.tutorial;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.media.AudioManager;
@@ -7,9 +9,6 @@ import android.media.MediaPlayer;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.media.MediaDescriptionCompat;
-import android.support.v4.media.MediaMetadataCompat;
-import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.AppCompatSeekBar;
@@ -50,22 +49,15 @@ public class PlayActivity extends AppCompatActivity {
 
     AudioManager audiomManager;
     float actVolume, curVolume, maxVolume;
-    private CurrentStatus currentStatus;
 
     Runnable runnable;
     Handler handler;
 
-
     private static final String TAG = "PlayActivity";
-
-    enum CurrentStatus {
-        PAUSE,
-        PLAYING
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d(TAG, "onCreate");
+        Log.d(TAG, "onCreate Called.");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play);
         musicImage = findViewById(R.id.imageView);
@@ -85,10 +77,18 @@ public class PlayActivity extends AppCompatActivity {
         handler = new Handler();
         musicManager = MusicManager.getInstance();
         mediaPlayer = musicManager.getMusicPlayer();
-        initMusicPlayer();
 
         Intent in = getIntent();
         musicManager.setCurrentIndex(in.getIntExtra("Index", -1));
+
+        initMusicPlayer(musicManager.getCurrentIndex());
+        initProgressBars();
+
+        //Play Button Display
+        playButtonIcon = R.drawable.ic_pause_black_24dp;
+        playButtonBackgroundColor = R.color.playingColor;
+        playButton.setImageDrawable(ContextCompat.getDrawable(getApplication(), playButtonIcon));
+        playButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(playButtonBackgroundColor, null)));
 
         //Volume Control
         audiomManager = (AudioManager) getSystemService(AUDIO_SERVICE);
@@ -97,17 +97,27 @@ public class PlayActivity extends AppCompatActivity {
         curVolume = actVolume / maxVolume;
         this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
-        currentStatus = CurrentStatus.PLAYING;
-        if (musicManager.isShuffling() == true) {
+        //Shuffle and Repeat
+        if (musicManager.isShuffling() == true)
             shuffleButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.holo_red_dark, null)));
+        else
+            shuffleButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.white, null)));
+
+        if (mediaPlayer.isLooping() != false) {
+            repeatButton.setImageDrawable(ContextCompat.getDrawable(getApplication(), R.drawable.ic_repeat_one_black_24dp));
+            repeatButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.holo_red_dark, null)));
+        } else {
+            repeatButton.setImageDrawable(ContextCompat.getDrawable(getApplication(), R.drawable.ic_repeat_black_24dp));
+            repeatButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.white, null)));
         }
+
+
+        playMusic();
     }
 
-    private void initMusicPlayer() {
-        int currentIndex = musicManager.getCurrentIndex();
-        Music m = musicManager.getMusicByIndex(currentIndex);
-        Log.d(TAG, "Music Index : " + m.getMusicIndex());
-        if (currentIndex >= 0 && currentIndex < musicManager.getMusicSize()) {
+    private void initMusicPlayer(int idx) {
+        Music m = musicManager.getMusicByIndex(idx);
+        if (idx >= 0 && idx < musicManager.getMusicSize()) {
 
             Glide.with(this)
                     .load(m.getMusicImage())
@@ -125,11 +135,9 @@ public class PlayActivity extends AppCompatActivity {
             speedBar.setProgress(musicInfoConverter.getProgressFormSpeedMult(musicManager.getPlaybackSpeed()));
             speedBar.setKeyProgressIncrement(1);
             speedMultText.setText(Float.toString(musicInfoConverter.getSpeedMultFromProgress(speedBar.getProgress())) + 'x');
-            initProgressBars();
 
         } else
             Log.d(TAG, "not found.");
-
     }
 
     private void initProgressBars() {
@@ -178,42 +186,49 @@ public class PlayActivity extends AppCompatActivity {
     }
 
     private void playMusic() {
-        setBackground(currentStatus);
-        currentStatus = CurrentStatus.PLAYING;
         doPlayService(Actions.ACTION_PLAY);
+        playCycle();
+    }
+
+    private void pauseMusic() {
+        setBackground();
+        doPlayService(Actions.ACTION_PAUSE);
+    }
+
+    private void resumeMusic() {
+        setBackground();
+        doPlayService(Actions.ACTION_RESUME);
         playCycle();
     }
 
     private void playPrevMusic() {
         int ci = musicManager.getCurrentIndex();
-        ci = ci - 1;
-        if (ci == -1)
-            ci = musicManager.getMusicSize() - 1;
-        musicManager.setCurrentIndex(ci);
-        initMusicPlayer();
-        playMusic();
+        ci -= 1;
+        if (ci == -1) ci = musicManager.getMusicSize() - 1;
+        initMusicPlayer(ci);
+        doPlayService(Actions.ACTION_PREV);
+
     }
 
     private void playNextMusic() {
-        musicManager.setCurrentIndex((musicManager.getCurrentIndex() + 1) % musicManager.getMusicSize());
-        initMusicPlayer();
-        playMusic();
+        int ci = musicManager.getCurrentIndex();
+        initMusicPlayer((ci + 1) % musicManager.getMusicSize());
+        doPlayService(Actions.ACTION_NEXT);
+
     }
 
-    private void setBackground(CurrentStatus curStatus) {
-        switch (curStatus) {
-            case PLAYING:
-                playButtonIcon = R.drawable.ic_pause_black_24dp;
-                playButtonBackgroundColor = R.color.playingColor;
-                break;
-            case PAUSE:
-                playButtonIcon = R.drawable.ic_play_arrow_black_24dp;
-                playButtonBackgroundColor = R.color.pausedColor;
-                break;
+    private void setBackground() {
+        if (mediaPlayer.isPlaying() == false) {
+            playButtonIcon = R.drawable.ic_pause_black_24dp;
+            playButtonBackgroundColor = R.color.playingColor;
+        } else {
+            playButtonIcon = R.drawable.ic_play_arrow_black_24dp;
+            playButtonBackgroundColor = R.color.pausedColor;
         }
         playButton.setImageDrawable(ContextCompat.getDrawable(getApplication(), playButtonIcon));
         playButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(playButtonBackgroundColor, null)));
     }
+
 
     public void controlClick(View v) {
         int viewId = v.getId();
@@ -232,13 +247,10 @@ public class PlayActivity extends AppCompatActivity {
                 }
                 break;
             case R.id.btn_play:
-                if (currentStatus == CurrentStatus.PLAYING) {
-                    currentStatus = CurrentStatus.PAUSE;
-                    setBackground(currentStatus);
-                    mediaPlayer.pause();
+                if (mediaPlayer.isPlaying()) {
+                    pauseMusic();
                 } else {
-                    currentStatus = CurrentStatus.PLAYING;
-                    playMusic();
+                    resumeMusic();
                 }
                 break;
             case R.id.btn_next:
@@ -273,25 +285,26 @@ public class PlayActivity extends AppCompatActivity {
     public void playCycle() {
         if (mediaPlayer == null)
             return;
+
         durationBar.setProgress(Math.min(durationBar.getMax(), mediaPlayer.getCurrentPosition()));
         currentDurationText.setText(musicInfoConverter.durationConvert(Math.min(durationBar.getMax(), mediaPlayer.getCurrentPosition())));
 
-        if (currentStatus == CurrentStatus.PLAYING) {
-            runnable = new Runnable() {
-                @Override
-                public void run() {
-                    playCycle();
-                }
-            };
-            handler.postDelayed(runnable, 250);
-        }
+        runnable = new Runnable() {
+            @Override
+            public void run() {
+                playCycle();
+            }
+        };
+        handler.postDelayed(runnable, 250);
     }
 
     @Override
     public void onResume() {
         Log.d(TAG, "onResume Called");
+        initMusicPlayer(musicManager.getCurrentIndex());
         super.onResume();
-    }
+
+}
 
     @Override
     public void onPause() {
