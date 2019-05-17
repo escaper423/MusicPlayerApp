@@ -21,6 +21,16 @@
             </intent-filter>
         </activity>
         <service android:name=".PlayerService" />
+        <receiver android:name=".MyBroadcastReceiver">
+            <intent-filter>
+                <action android:name="com.example.tutorial.prev"/>
+                <action android:name="com.example.tutorial.play"/>
+                <action android:name="com.example.tutorial.resume"/>
+                <action android:name="com.example.tutorial.pause"/>
+                <action android:name="com.example.tutorial.next"/>
+                <action android:name="com.example.tutorial.end"/>
+            </intent-filter>
+        </receiver>
 
     </application>
 

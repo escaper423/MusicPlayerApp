@@ -55,6 +55,7 @@
         android:layout_toEndOf="@id/notification_title"
         android:background="@color/colorPrimaryDark"
         android:scaleType="fitXY"
+        android:tint="@android:color/white"
         android:src="@drawable/ic_skip_previous_black_24dp" />
 
     <ImageButton
@@ -66,6 +67,7 @@
         android:layout_toEndOf="@id/notification_prev"
         android:background="@color/colorPrimaryDark"
         android:scaleType="fitXY"
+        android:tint="@android:color/white"
         android:src="@drawable/ic_pause_black_24dp" />
 
     <ImageButton
@@ -77,6 +79,7 @@
         android:layout_toEndOf="@id/notification_play"
         android:background="@color/colorPrimaryDark"
         android:scaleType="fitXY"
+        android:tint="@android:color/white"
         android:src="@drawable/ic_skip_next_black_24dp" />
 
     <ImageButton

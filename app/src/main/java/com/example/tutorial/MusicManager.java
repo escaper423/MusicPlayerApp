@@ -49,6 +49,11 @@ class MusicManager {
         mediaPlayer.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed(playbackSpeed));
     }
 
+    public MediaPlayer createAndGetMusicPlayer(){
+        mediaPlayer = new MediaPlayer();
+        return mediaPlayer;
+    }
+
     public float getPlaybackSpeed() {
         return playbackSpeed;
     }

@@ -81,13 +81,6 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.View
                 //Play Music Function
                 Intent in = new Intent(mContext,PlayActivity.class);
                 in.putExtra("Index",i);
-                /*
-                in.putExtra("music_title",musicList.get(i).getMusicTitle());
-                in.putExtra("music_artist",musicList.get(i).getMusicArtist());
-                in.putExtra("music_album",musicList.get(i).getMusicAlbum());
-                in.putExtra("music_duration",musicList.get(i).getMusicDuration());
-                in.putExtra("music_path",musicList.get(i).getMusicPath());
-*/
                 mContext.startActivity(in);
             }
         });

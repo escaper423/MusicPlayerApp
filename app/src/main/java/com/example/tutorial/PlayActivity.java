@@ -46,10 +46,6 @@ public class PlayActivity extends AppCompatActivity {
     private AppCompatSeekBar durationBar;
     private AppCompatSeekBar speedBar;
 
-
-    AudioManager audiomManager;
-    float actVolume, curVolume, maxVolume;
-
     Runnable runnable;
     Handler handler;
 
@@ -76,7 +72,8 @@ public class PlayActivity extends AppCompatActivity {
         speedBar = findViewById(R.id.speed_multiplier_bar);
         handler = new Handler();
         musicManager = MusicManager.getInstance();
-        mediaPlayer = musicManager.getMusicPlayer();
+
+
 
         Intent in = getIntent();
         musicManager.setCurrentIndex(in.getIntExtra("Index", -1));
@@ -90,12 +87,10 @@ public class PlayActivity extends AppCompatActivity {
         playButton.setImageDrawable(ContextCompat.getDrawable(getApplication(), playButtonIcon));
         playButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(playButtonBackgroundColor, null)));
 
-        //Volume Control
-        audiomManager = (AudioManager) getSystemService(AUDIO_SERVICE);
-        actVolume = (float) audiomManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-        maxVolume = (float) audiomManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-        curVolume = actVolume / maxVolume;
-        this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
+        if(musicManager.getMusicPlayer() == null)
+            mediaPlayer = musicManager.createAndGetMusicPlayer();
+        else
+            mediaPlayer = musicManager.getMusicPlayer();
 
         //Shuffle and Repeat
         if (musicManager.isShuffling() == true)
@@ -116,6 +111,8 @@ public class PlayActivity extends AppCompatActivity {
     }
 
     private void initMusicPlayer(int idx) {
+        Log.d(TAG, "initMusicPlayer Called.");
+        Log.d(TAG, "initMusicPlayer index : " + idx);
         Music m = musicManager.getMusicByIndex(idx);
         if (idx >= 0 && idx < musicManager.getMusicSize()) {
 
@@ -283,19 +280,18 @@ public class PlayActivity extends AppCompatActivity {
 
     //TODO : Must solve some problems with this thread
     public void playCycle() {
-        if (mediaPlayer == null)
+        if (musicManager.getMusicPlayer() == null)
             return;
-
-        durationBar.setProgress(Math.min(durationBar.getMax(), mediaPlayer.getCurrentPosition()));
-        currentDurationText.setText(musicInfoConverter.durationConvert(Math.min(durationBar.getMax(), mediaPlayer.getCurrentPosition())));
 
         runnable = new Runnable() {
             @Override
             public void run() {
+                durationBar.setProgress(Math.min(durationBar.getMax(), mediaPlayer.getCurrentPosition()));
+                currentDurationText.setText(musicInfoConverter.durationConvert(Math.min(durationBar.getMax(), mediaPlayer.getCurrentPosition())));
                 playCycle();
             }
         };
-        handler.postDelayed(runnable, 250);
+        handler.postDelayed(runnable, 100);
     }
 
     @Override
@@ -303,8 +299,7 @@ public class PlayActivity extends AppCompatActivity {
         Log.d(TAG, "onResume Called");
         initMusicPlayer(musicManager.getCurrentIndex());
         super.onResume();
-
-}
+    }
 
     @Override
     public void onPause() {
