@@ -3,6 +3,7 @@ package com.example.tutorial;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.ColorStateList;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -18,6 +19,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
@@ -48,7 +50,7 @@ public class PlayActivity extends AppCompatActivity {
 
     Runnable runnable;
     Handler handler;
-
+    BroadcastReceiver bReceiver;
     private static final String TAG = "PlayActivity";
 
     @Override
@@ -73,46 +75,24 @@ public class PlayActivity extends AppCompatActivity {
         handler = new Handler();
         musicManager = MusicManager.getInstance();
 
-
-
         Intent in = getIntent();
         musicManager.setCurrentIndex(in.getIntExtra("Index", -1));
 
-        initMusicPlayer(musicManager.getCurrentIndex());
+        registerReceiver();
+        updateDisplay(musicManager.getCurrentIndex());
         initProgressBars();
-
-        //Play Button Display
-        playButtonIcon = R.drawable.ic_pause_black_24dp;
-        playButtonBackgroundColor = R.color.playingColor;
-        playButton.setImageDrawable(ContextCompat.getDrawable(getApplication(), playButtonIcon));
-        playButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(playButtonBackgroundColor, null)));
-
-        if(musicManager.getMusicPlayer() == null)
-            mediaPlayer = musicManager.createAndGetMusicPlayer();
-        else
-            mediaPlayer = musicManager.getMusicPlayer();
-
-        //Shuffle and Repeat
-        if (musicManager.isShuffling() == true)
-            shuffleButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.holo_red_dark, null)));
-        else
-            shuffleButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.white, null)));
-
-        if (mediaPlayer.isLooping() != false) {
-            repeatButton.setImageDrawable(ContextCompat.getDrawable(getApplication(), R.drawable.ic_repeat_one_black_24dp));
-            repeatButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.holo_red_dark, null)));
-        } else {
-            repeatButton.setImageDrawable(ContextCompat.getDrawable(getApplication(), R.drawable.ic_repeat_black_24dp));
-            repeatButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.white, null)));
-        }
-
-
         playMusic();
     }
 
-    private void initMusicPlayer(int idx) {
-        Log.d(TAG, "initMusicPlayer Called.");
-        Log.d(TAG, "initMusicPlayer index : " + idx);
+    /*
+        Updates all Acitivity Displays
+        idx : Current Music Index
+        isFirst : when it starts onCreate (first update) : 1
+                  not first (is playing and pause or resume) : 0
+     */
+    private void updateDisplay(int idx) {
+        Log.d(TAG, "updateDisplay Called.");
+        Log.d(TAG, "updateDisplay index : " + idx);
         Music m = musicManager.getMusicByIndex(idx);
         if (idx >= 0 && idx < musicManager.getMusicSize()) {
 
@@ -132,6 +112,25 @@ public class PlayActivity extends AppCompatActivity {
             speedBar.setProgress(musicInfoConverter.getProgressFormSpeedMult(musicManager.getPlaybackSpeed()));
             speedBar.setKeyProgressIncrement(1);
             speedMultText.setText(Float.toString(musicInfoConverter.getSpeedMultFromProgress(speedBar.getProgress())) + 'x');
+
+            if (musicManager.getMusicPlayer() == null)
+                mediaPlayer = musicManager.createAndGetMusicPlayer();
+            else
+                mediaPlayer = musicManager.getMusicPlayer();
+            setPlayButtonBackground();
+            //Shuffle and Repeat
+            if (musicManager.isShuffling() == true)
+                shuffleButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.holo_red_dark, null)));
+            else
+                shuffleButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.white, null)));
+
+            if (mediaPlayer.isLooping() != false) {
+                repeatButton.setImageDrawable(ContextCompat.getDrawable(getApplication(), R.drawable.ic_repeat_one_black_24dp));
+                repeatButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.holo_red_dark, null)));
+            } else {
+                repeatButton.setImageDrawable(ContextCompat.getDrawable(getApplication(), R.drawable.ic_repeat_black_24dp));
+                repeatButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.white, null)));
+            }
 
         } else
             Log.d(TAG, "not found.");
@@ -188,12 +187,12 @@ public class PlayActivity extends AppCompatActivity {
     }
 
     private void pauseMusic() {
-        setBackground();
+        setPlayButtonBackground();
         doPlayService(Actions.ACTION_PAUSE);
     }
 
     private void resumeMusic() {
-        setBackground();
+        setPlayButtonBackground();
         doPlayService(Actions.ACTION_RESUME);
         playCycle();
     }
@@ -202,20 +201,20 @@ public class PlayActivity extends AppCompatActivity {
         int ci = musicManager.getCurrentIndex();
         ci -= 1;
         if (ci == -1) ci = musicManager.getMusicSize() - 1;
-        initMusicPlayer(ci);
+        updateDisplay(ci);
         doPlayService(Actions.ACTION_PREV);
 
     }
 
     private void playNextMusic() {
         int ci = musicManager.getCurrentIndex();
-        initMusicPlayer((ci + 1) % musicManager.getMusicSize());
+        updateDisplay((ci + 1) % musicManager.getMusicSize());
         doPlayService(Actions.ACTION_NEXT);
 
     }
 
-    private void setBackground() {
-        if (mediaPlayer.isPlaying() == false) {
+    private void setPlayButtonBackground() {
+        if (mediaPlayer.isPlaying()) {
             playButtonIcon = R.drawable.ic_pause_black_24dp;
             playButtonBackgroundColor = R.color.playingColor;
         } else {
@@ -258,10 +257,12 @@ public class PlayActivity extends AppCompatActivity {
                     mediaPlayer.setLooping(true);
                     repeatButton.setImageDrawable(ContextCompat.getDrawable(getApplication(), R.drawable.ic_repeat_one_black_24dp));
                     repeatButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.holo_red_dark, null)));
+                    Toast.makeText(getApplicationContext(), "Repeat Enabled.", Toast.LENGTH_SHORT).show();
                 } else {
                     mediaPlayer.setLooping(false);
                     repeatButton.setImageDrawable(ContextCompat.getDrawable(getApplication(), R.drawable.ic_repeat_black_24dp));
                     repeatButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.white, null)));
+                    Toast.makeText(getApplicationContext(), "Repeat Disabled.", Toast.LENGTH_SHORT).show();
                 }
                 break;
             case R.id.btn_shuffle:
@@ -269,10 +270,12 @@ public class PlayActivity extends AppCompatActivity {
                     shuffleButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.holo_red_dark, null)));
                     musicManager.shuffleList();
                     musicManager.setCurrentIndex(musicManager.getPositionByIdx(musicManager.getCurrentIndex()));
+                    Toast.makeText(getApplicationContext(), "Shuffle Enabled.", Toast.LENGTH_SHORT).show();
                 } else {
                     shuffleButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.white, null)));
                     musicManager.setCurrentIndex(musicManager.getMusicByIndex(musicManager.getCurrentIndex()).getMusicIndex());
                     musicManager.shuffleList();
+                    Toast.makeText(getApplicationContext(), "Shuffle Disabled.", Toast.LENGTH_SHORT).show();
                 }
                 break;
         }
@@ -297,7 +300,7 @@ public class PlayActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         Log.d(TAG, "onResume Called");
-        initMusicPlayer(musicManager.getCurrentIndex());
+        updateDisplay(musicManager.getCurrentIndex());
         super.onResume();
     }
 
@@ -316,5 +319,16 @@ public class PlayActivity extends AppCompatActivity {
     public void onDestroy() {
         super.onDestroy();
         handler.removeCallbacks(runnable);
+        unregisterReceiver(bReceiver);
+    }
+
+    private void registerReceiver() {
+        bReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                updateDisplay(musicManager.getCurrentIndex());
+            }
+        };
+        registerReceiver(bReceiver, new IntentFilter(Actions.ACTION_UPDATE));
     }
 }

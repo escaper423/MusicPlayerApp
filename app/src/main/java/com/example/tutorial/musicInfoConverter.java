@@ -24,12 +24,22 @@ public class musicInfoConverter {
     public static String durationConvert(int duration){
         int sec = duration / 1000;
         int min = sec / 60;
+        int hr = min / 60;
+        String res = "";
         sec = sec % 60;
+        //hours string
+        if (hr > 0)
+            res += hr + ":";
+        //Minutes string. nothing to do.
+        res += min;
+
+        //seconds string
         if (sec < 10) {
-            return min + ":0" + sec;
+            res += ":0" + sec;
         }
         else{
-            return min +":" + sec;
+            res +=":" + sec;
         }
+        return res;
     }
 }

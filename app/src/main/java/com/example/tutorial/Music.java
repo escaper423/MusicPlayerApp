@@ -15,7 +15,7 @@ public class Music {
     private Bitmap musicImage;
     private int musicIndex; //Original Index of music (used for shuffling)
 
-    public Music(String title, @Nullable String artist, @Nullable String album, int duration, String path, @Nullable Bitmap image, int originalIdx) {
+    public Music( String title, @Nullable String artist, @Nullable String album, int duration, String path, @Nullable Bitmap image, int originalIdx) {
         musicTitle = title;
         musicAlbum = album;
         musicArtist = artist;
@@ -51,4 +51,15 @@ public class Music {
         return musicImage;
     }
 
+    @Override
+    public Music clone(){
+        String mt = this.musicTitle;
+        String mal = this.musicAlbum;
+        String mat = this.musicArtist;
+        int md = this.musicDuration;
+        String mp = this.musicPath;
+        Bitmap mimg = this.musicImage;
+        int midx = this.musicIndex;
+        return new Music(mt,mat,mal,md,mp,mimg,midx);
+    }
 }

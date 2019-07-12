@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.ViewHolder>{
-
+    private MusicManager musicManager = MusicManager.getInstance();
     private static final String TAG = "TrackListAdapter";
     public static class ViewHolder extends RecyclerView.ViewHolder
     {
@@ -78,7 +78,9 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.View
             @Override
             public void onClick(View view)
             {
-                //Play Music Function
+                //Play Music Function by clicking one of elements in the list
+                musicManager.resetMusicList();
+                musicManager.setShuffling(false);
                 Intent in = new Intent(mContext,PlayActivity.class);
                 in.putExtra("Index",i);
                 mContext.startActivity(in);

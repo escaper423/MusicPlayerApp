@@ -24,6 +24,12 @@ public class PlayerService extends Service {
     private MusicManager musicManager;
     private MediaPlayer mediaPlayer;
     private AudioManager audioManager;
+
+    enum Status {
+        RESUME,
+        PAUSE
+    }
+
     float actVolume, curVolume, maxVolume;
 
     private NotificationManagerCompat notificationManagerCompat;
@@ -39,6 +45,7 @@ public class PlayerService extends Service {
             public void onPrepared(MediaPlayer mp) {
                 mp.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed(musicManager.getPlaybackSpeed()));
                 mp.start();
+                sendDisplayUpdate();
             }
         });
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
@@ -47,7 +54,6 @@ public class PlayerService extends Service {
                 if (mp.isLooping() == false) {
                     playNextMusic();
                 }
-
             }
         });
     }
@@ -58,25 +64,25 @@ public class PlayerService extends Service {
         actVolume = (float) audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         maxVolume = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
         curVolume = actVolume / maxVolume;
-
+/*
         RemoteViews notificationLayout = new RemoteViews(getPackageName(), R.layout.notification_service);
 
         Intent pauseIntent = new Intent(Actions.ACTION_PAUSE);
-        PendingIntent pPause = PendingIntent.getBroadcast(this,0,pauseIntent,0);
+        PendingIntent pPause = PendingIntent.getBroadcast(this, 0, pauseIntent, 0);
 
         Intent nextIntent = new Intent(Actions.ACTION_NEXT);
-        PendingIntent pNext = PendingIntent.getBroadcast(this,0,nextIntent,0);
+        PendingIntent pNext = PendingIntent.getBroadcast(this, 0, nextIntent, 0);
 
         Intent prevIntent = new Intent(Actions.ACTION_PREV);
-        PendingIntent pPrev = PendingIntent.getBroadcast(this,0,prevIntent,0);
+        PendingIntent pPrev = PendingIntent.getBroadcast(this, 0, prevIntent, 0);
 
         Intent endIntent = new Intent(Actions.ACTION_END);
-        PendingIntent pEnd = PendingIntent.getBroadcast(this,0,endIntent,0);
+        PendingIntent pEnd = PendingIntent.getBroadcast(this, 0, endIntent, 0);
 
-        notificationLayout.setTextViewText(R.id.notification_title,m.getMusicTitle());
-        notificationLayout.setTextViewText(R.id.notification_artist,m.getMusicArtist());
-        notificationLayout.setImageViewBitmap(R.id.notification_image,m.getMusicImage());
-        notificationLayout.setImageViewResource(R.id.notification_play,R.drawable.ic_pause_black_24dp);
+        notificationLayout.setTextViewText(R.id.notification_title, m.getMusicTitle());
+        notificationLayout.setTextViewText(R.id.notification_artist, m.getMusicArtist());
+        notificationLayout.setImageViewBitmap(R.id.notification_image, m.getMusicImage());
+        notificationLayout.setImageViewResource(R.id.notification_play, R.drawable.ic_pause_black_24dp);
         notificationLayout.setOnClickPendingIntent(R.id.notification_prev, pPrev);
         notificationLayout.setOnClickPendingIntent(R.id.notification_next, pNext);
         notificationLayout.setOnClickPendingIntent(R.id.notification_play, pPause);
@@ -86,9 +92,9 @@ public class PlayerService extends Service {
                 .setSmallIcon(R.drawable.ic_music_video_black_24dp)
                 .setCustomContentView(notificationLayout)
                 .setCustomBigContentView(notificationLayout)
-                .build();
-
-        startForeground(1,channel);
+                .build();*/
+        Notification channel = createNotificationWithStatus(m,Status.PAUSE);
+        startForeground(1, channel);
         Uri uri = Uri.parse(m.getMusicPath());
         mediaPlayer.reset();
         try {
@@ -99,6 +105,10 @@ public class PlayerService extends Service {
         }
     }
 
+    private void sendDisplayUpdate(){
+        Intent intent = new Intent(Actions.ACTION_UPDATE);
+        sendBroadcast(intent);
+    }
     private void playPrevMusic() {
         int ci = musicManager.getCurrentIndex();
         ci -= 1;
@@ -110,7 +120,7 @@ public class PlayerService extends Service {
         if (mediaPlayer.isLooping() == true)
             mediaPlayer.setLooping(false);
 
-            playMusic(musicManager.getMusicByIndex(musicManager.getCurrentIndex()));
+        playMusic(musicManager.getMusicByIndex(musicManager.getCurrentIndex()));
 
     }
 
@@ -120,7 +130,76 @@ public class PlayerService extends Service {
         if (mediaPlayer.isLooping() == true)
             mediaPlayer.setLooping(false);
 
-            playMusic(musicManager.getMusicByIndex(musicManager.getCurrentIndex()));
+        playMusic(musicManager.getMusicByIndex(musicManager.getCurrentIndex()));
+    }
+
+    private Notification createNotificationWithStatus(Music m, Status status) {
+        RemoteViews notificationLayout = null;
+        Intent pauseIntent, resumeIntent, nextIntent, prevIntent, endIntent;
+        PendingIntent pPause, pNext, pPrev, pEnd, pResume;
+
+        switch (status) {
+            //Resume player
+            case PAUSE:
+                notificationLayout = new RemoteViews(getPackageName(), R.layout.notification_service);
+
+                pauseIntent = new Intent(Actions.ACTION_PAUSE);
+                pPause = PendingIntent.getBroadcast(this, 0, pauseIntent, 0);
+
+                nextIntent = new Intent(Actions.ACTION_NEXT);
+                pNext = PendingIntent.getBroadcast(this, 0, nextIntent, 0);
+
+                prevIntent = new Intent(Actions.ACTION_PREV);
+                pPrev = PendingIntent.getBroadcast(this, 0, prevIntent, 0);
+
+                endIntent = new Intent(Actions.ACTION_END);
+                pEnd = PendingIntent.getBroadcast(this, 0, endIntent, 0);
+
+                notificationLayout.setTextViewText(R.id.notification_title, m.getMusicTitle());
+                notificationLayout.setTextViewText(R.id.notification_artist, m.getMusicArtist());
+                notificationLayout.setImageViewBitmap(R.id.notification_image, m.getMusicImage());
+                notificationLayout.setImageViewResource(R.id.notification_play, R.drawable.ic_pause_black_24dp);
+                notificationLayout.setOnClickPendingIntent(R.id.notification_prev, pPrev);
+                notificationLayout.setOnClickPendingIntent(R.id.notification_next, pNext);
+                notificationLayout.setOnClickPendingIntent(R.id.notification_play, pPause);
+                notificationLayout.setOnClickPendingIntent(R.id.notification_end, pEnd);
+                break;
+                //Pause player
+            case RESUME:
+                notificationLayout = new RemoteViews(getPackageName(), R.layout.notification_service);
+
+                resumeIntent = new Intent(Actions.ACTION_RESUME);
+                pResume = PendingIntent.getBroadcast(this, 0, resumeIntent, 0);
+
+                nextIntent = new Intent(Actions.ACTION_NEXT);
+                pNext = PendingIntent.getBroadcast(this, 0, nextIntent, 0);
+
+                prevIntent = new Intent(Actions.ACTION_PREV);
+                pPrev = PendingIntent.getBroadcast(this, 0, prevIntent, 0);
+
+                endIntent = new Intent(Actions.ACTION_END);
+                pEnd = PendingIntent.getBroadcast(this, 0, endIntent, 0);
+
+                notificationLayout.setTextViewText(R.id.notification_title, m.getMusicTitle());
+                notificationLayout.setTextViewText(R.id.notification_artist, m.getMusicArtist());
+                notificationLayout.setImageViewBitmap(R.id.notification_image, m.getMusicImage());
+                notificationLayout.setImageViewResource(R.id.notification_play, R.drawable.ic_play_arrow_black_24dp);
+                notificationLayout.setOnClickPendingIntent(R.id.notification_prev, pPrev);
+                notificationLayout.setOnClickPendingIntent(R.id.notification_next, pNext);
+                notificationLayout.setOnClickPendingIntent(R.id.notification_play, pResume);
+                notificationLayout.setOnClickPendingIntent(R.id.notification_end, pEnd);
+                break;
+        }
+
+        Notification channel = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_music_video_black_24dp)
+                .setCustomContentView(notificationLayout)
+                .setCustomBigContentView(notificationLayout)
+                .build();
+
+        return channel;
+
+
     }
 
     @Override
@@ -131,78 +210,24 @@ public class PlayerService extends Service {
 
     //same code repeats, and inefficient. so need to do some replace or merge
     private void pauseMusic(Music m) {
-        RemoteViews notificationLayout = new RemoteViews(getPackageName(), R.layout.notification_service);
-
-        Intent resumeIntent = new Intent(Actions.ACTION_RESUME);
-        PendingIntent pResume = PendingIntent.getBroadcast(this,0,resumeIntent,0);
-
-        Intent nextIntent = new Intent(Actions.ACTION_NEXT);
-        PendingIntent pNext = PendingIntent.getBroadcast(this,0,nextIntent,0);
-
-        Intent prevIntent = new Intent(Actions.ACTION_PREV);
-        PendingIntent pPrev = PendingIntent.getBroadcast(this,0,prevIntent,0);
-
-        Intent endIntent = new Intent(Actions.ACTION_END);
-        PendingIntent pEnd = PendingIntent.getBroadcast(this,0,endIntent,0);
-
-        notificationLayout.setTextViewText(R.id.notification_title,m.getMusicTitle());
-        notificationLayout.setTextViewText(R.id.notification_artist,m.getMusicArtist());
-        notificationLayout.setImageViewBitmap(R.id.notification_image,m.getMusicImage());
-        notificationLayout.setImageViewResource(R.id.notification_play,R.drawable.ic_play_arrow_black_24dp);
-        notificationLayout.setOnClickPendingIntent(R.id.notification_prev, pPrev);
-        notificationLayout.setOnClickPendingIntent(R.id.notification_next, pNext);
-        notificationLayout.setOnClickPendingIntent(R.id.notification_play, pResume);
-        notificationLayout.setOnClickPendingIntent(R.id.notification_end, pEnd);
-
-        Notification channel = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_music_video_black_24dp)
-                .setCustomContentView(notificationLayout)
-                .setCustomBigContentView(notificationLayout)
-                .build();
-
-        startForeground(1,channel);
+        Notification channel = createNotificationWithStatus(m, Status.RESUME);
+        startForeground(1, channel);
+        sendDisplayUpdate();
         mediaPlayer.pause();
     }
 
     private void resumeMusic(Music m) {
-        RemoteViews notificationLayout = new RemoteViews(getPackageName(), R.layout.notification_service);
-
-        Intent pauseIntent = new Intent(Actions.ACTION_PAUSE);
-        PendingIntent pPause = PendingIntent.getBroadcast(this,0,pauseIntent,0);
-
-        Intent nextIntent = new Intent(Actions.ACTION_NEXT);
-        PendingIntent pNext = PendingIntent.getBroadcast(this,0,nextIntent,0);
-
-        Intent prevIntent = new Intent(Actions.ACTION_PREV);
-        PendingIntent pPrev = PendingIntent.getBroadcast(this,0,prevIntent,0);
-
-        Intent endIntent = new Intent(Actions.ACTION_END);
-        PendingIntent pEnd = PendingIntent.getBroadcast(this,0,endIntent,0);
-
-        notificationLayout.setTextViewText(R.id.notification_title,m.getMusicTitle());
-        notificationLayout.setTextViewText(R.id.notification_artist,m.getMusicArtist());
-        notificationLayout.setImageViewBitmap(R.id.notification_image,m.getMusicImage());
-        notificationLayout.setImageViewResource(R.id.notification_play,R.drawable.ic_pause_black_24dp);
-        notificationLayout.setOnClickPendingIntent(R.id.notification_prev, pPrev);
-        notificationLayout.setOnClickPendingIntent(R.id.notification_next, pNext);
-        notificationLayout.setOnClickPendingIntent(R.id.notification_play, pPause);
-        notificationLayout.setOnClickPendingIntent(R.id.notification_end, pEnd);
-
-        Notification channel = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_music_video_black_24dp)
-                .setCustomContentView(notificationLayout)
-                .setCustomBigContentView(notificationLayout)
-                .build();
-
-        startForeground(1,channel);
+        Notification channel = createNotificationWithStatus(m, Status.PAUSE);
+        startForeground(1, channel);
+        sendDisplayUpdate();
         mediaPlayer.start();
     }
 
     /**
-     *turn the service and mediaplayer off
+     * turn the service and mediaplayer off
      */
 
-    public void stopPlayer(){
+    public void stopPlayer() {
         if (mediaPlayer != null) {
             if (mediaPlayer.isPlaying())
                 mediaPlayer.stop();
@@ -211,10 +236,11 @@ public class PlayerService extends Service {
         }
         stopSelf();
     }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand Called.");
-        Log.d(TAG,"onStartCommand index : "+musicManager.getCurrentIndex());
+        Log.d(TAG, "onStartCommand index : " + musicManager.getCurrentIndex());
         String actionToDo = intent.getAction();
         Music m = musicManager.getMusicByIndex(musicManager.getCurrentIndex());
         if (actionToDo.equals(Actions.ACTION_PLAY)) {
@@ -227,7 +253,7 @@ public class PlayerService extends Service {
             pauseMusic(m);
         } else if (actionToDo.equals(Actions.ACTION_RESUME)) {
             resumeMusic(m);
-        } else if (actionToDo.equals(Actions.ACTION_END)){
+        } else if (actionToDo.equals(Actions.ACTION_END)) {
             stopPlayer();
         }
         return START_NOT_STICKY;

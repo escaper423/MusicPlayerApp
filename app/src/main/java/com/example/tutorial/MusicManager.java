@@ -10,6 +10,7 @@ import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.bumptech.glide.load.model.stream.MediaStoreImageThumbLoader;
@@ -23,7 +24,9 @@ class MusicManager {
     private static final String TAG = "MusicManager";
     private static MusicManager musicManager = null;
 
-    private ArrayList<Music> musicList;
+    //Music lists and MediaPlayer object.
+    private ArrayList<Music> storedMusicList;   //stores all musics in the device.
+    private ArrayList<Music> currentMusicList;  //currently using playlist.
     private MediaPlayer mediaPlayer = new MediaPlayer();
 
     //Playback speed, shuffle status
@@ -40,17 +43,16 @@ class MusicManager {
         currentIndex = i;
     }
 
-    public boolean isShuffling(){
-        return isShuffling;
-    }
-
+    public boolean isShuffling(){ return isShuffling; }
+    public void setShuffling(boolean b) { isShuffling = b; }
     public void setPlaybackSpeed(float f) {
         playbackSpeed = f;
         mediaPlayer.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed(playbackSpeed));
     }
 
     public MediaPlayer createAndGetMusicPlayer(){
-        mediaPlayer = new MediaPlayer();
+        if (mediaPlayer == null)
+            mediaPlayer = new MediaPlayer();
         return mediaPlayer;
     }
 
@@ -59,11 +61,12 @@ class MusicManager {
     }
 
     public int getMusicSize() {
-        return musicList.size();
+        return currentMusicList.size();
     }
 
     private MusicManager() {
-        musicList = new ArrayList<>();
+        storedMusicList = new ArrayList<>();
+        currentMusicList = new ArrayList<>();
     }
 
     public static MusicManager getInstance() {
@@ -77,17 +80,21 @@ class MusicManager {
         return mediaPlayer;
     }
     public Music getMusicByIndex(int i) {
-        return musicList.get(i);
+        return currentMusicList.get(i);
     }
 
-    public ArrayList<Music> getMusicList() {
-        return musicList;
+    public ArrayList<Music> getCurrentMusicList() {
+        return currentMusicList;
+    }
+    public ArrayList<Music> getStoredMusicList() {
+        return storedMusicList;
     }
 
     //TODO : additional filter option needed
-    public void initMusicList(Context context) {
-        if (musicList.size() != 0)
-            musicList.clear();
+    //fills storedMusicList for initialization.
+    public void initMusicList(Context context, @Nullable String projection, @Nullable String selection,@Nullable String selectionArgs) {
+        if (storedMusicList.size() != 0)
+            storedMusicList.clear();
 
         ContentResolver contentResolver = context.getContentResolver();
         Uri songUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
@@ -118,15 +125,24 @@ class MusicManager {
                     bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
                 }
 
-                musicList.add(new Music(currentTitle, currentArtist, currentAlbum, currentDuration, currentPath, bitmap, songCursor.getPosition()));
+                storedMusicList.add(new Music(currentTitle, currentArtist, currentAlbum, currentDuration, currentPath, bitmap, songCursor.getPosition()));
 
             } while (songCursor.moveToNext());
         }
     }
 
+    //Resets current playlist. from storedList
+    public void resetMusicList(){
+        currentMusicList.clear();
+        for (Music m : storedMusicList){
+            currentMusicList.add(m.clone());
+        }
+    }
+
+    //shuffles the current list for shuffle feature.
     public void shuffleList() {
         if (isShuffling == true) {
-            Collections.sort(musicList, new Comparator<Music>() {
+            Collections.sort(currentMusicList, new Comparator<Music>() {
                 @Override
                 public int compare(Music m1, Music m2) {
                     return m1.getMusicIndex() > m2.getMusicIndex() ? 1 : -1;
@@ -134,13 +150,13 @@ class MusicManager {
             });
             isShuffling = false;
         } else {
-            Collections.shuffle(musicList);
+            Collections.shuffle(currentMusicList);
             isShuffling = true;
         }
     }
     public int getPositionByIdx(int idx){
-        for(int i = 0; i < musicList.size(); i++){
-            if(idx == musicList.get(i).getMusicIndex())
+        for(int i = 0; i < currentMusicList.size(); i++){
+            if(idx == currentMusicList.get(i).getMusicIndex())
                 return i;
         }
         //Some error occured
