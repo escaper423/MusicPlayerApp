@@ -1,4 +1,4 @@
-package com.example.tutorial;
+package com.nothing.unnamedplayer;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -11,13 +11,12 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
-import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
+import com.nothing.unnamedplayer.R;
 
 import java.io.IOException;
 
-import static com.example.tutorial.App.CHANNEL_ID;
 
 public class PlayerService extends Service {
     private final static String TAG = "PlayerService";
@@ -191,7 +190,7 @@ public class PlayerService extends Service {
                 break;
         }
 
-        Notification channel = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
+        Notification channel = new NotificationCompat.Builder(getApplicationContext(), App.CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_music_video_black_24dp)
                 .setCustomContentView(notificationLayout)
                 .setCustomBigContentView(notificationLayout)
@@ -232,7 +231,6 @@ public class PlayerService extends Service {
             if (mediaPlayer.isPlaying())
                 mediaPlayer.stop();
             mediaPlayer.release();
-            mediaPlayer = null;
         }
         stopSelf();
     }

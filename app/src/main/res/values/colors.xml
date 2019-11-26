@@ -3,6 +3,7 @@
     <color name="colorPrimary">#4F2d12</color>
     <color name="colorPrimaryDark">#3e2113</color>
     <color name="colorAccent">#D81B60</color>
-    <color name="pausedColor">#3d2ddf</color>
+    <color name="pausedColor">#348d3f</color>
     <color name="playingColor">#df3d2d</color>
 </resources>
+

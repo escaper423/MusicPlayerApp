@@ -1,35 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.tutorial">
+    package="com.nothing.unnamedplayer">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.BLUETOOTH.ADMIN"/>
 
     <application
-        android:name=".App"
+        android:name="com.nothing.unnamedplayer.App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".PlayActivity"/>
-        <activity android:name=".MainActivity">
+        <activity android:name="com.nothing.unnamedplayer.PlayActivity"/>
+        <activity android:name="com.nothing.unnamedplayer.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name=".PlayerService" />
-        <receiver android:name=".MyBroadcastReceiver">
+        <service android:name="com.nothing.unnamedplayer.PlayerService" />
+        <receiver android:name="com.nothing.unnamedplayer.MyBroadcastReceiver">
             <intent-filter>
-                <action android:name="com.example.tutorial.prev"/>
-                <action android:name="com.example.tutorial.play"/>
-                <action android:name="com.example.tutorial.resume"/>
-                <action android:name="com.example.tutorial.pause"/>
-                <action android:name="com.example.tutorial.next"/>
-                <action android:name="com.example.tutorial.end"/>
+                <action android:name="com.nothing.unnamedplayer.prev"/>
+                <action android:name="com.nothing.unnamedplayer.play"/>
+                <action android:name="com.nothing.unnamedplayer.resume"/>
+                <action android:name="com.nothing.unnamedplayer.pause"/>
+                <action android:name="com.nothing.unnamedplayer.next"/>
+                <action android:name="com.nothing.unnamedplayer.end"/>
+                <action android:name="android.intent.action.PHONE_STATE"/>
+                <action android:name="android.intent.action."/>
             </intent-filter>
         </receiver>
 

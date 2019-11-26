@@ -1,4 +1,4 @@
-package com.example.tutorial;
+package com.nothing.unnamedplayer;
 
 import android.app.Application;
 import android.app.Notification;

@@ -1,4 +1,4 @@
-package com.example.tutorial;
+package UnnamedPlayer.example.tutorial;
 
 import org.junit.Test;
 

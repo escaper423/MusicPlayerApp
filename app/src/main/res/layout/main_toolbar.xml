@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="64dp"
+    android:background="@drawable/background_metal">
+
+    <android.support.v7.widget.AppCompatSeekBar
+        android:id="@+id/tool_seekbar"
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:progress="50"
+        app:layout_constraintBottom_toTopOf="@id/tool_title"
+        app:layout_constraintStart_toStartOf="@id/tool_title"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/tool_image"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tool_seekbar" />
+
+
+    <TextView
+        android:id="@+id/tool_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Title Text"
+        android:textSize="14sp"
+        android:textColor="@drawable/background_red"
+        app:layout_constraintStart_toEndOf="@+id/tool_image"
+        app:layout_constraintTop_toBottomOf="@+id/tool_seekbar"
+        android:maxLines="1"
+        android:ellipsize="end"
+        />
+
+    <TextView
+        android:id ="@+id/tool_artist"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Artist Text"
+        android:textSize="10sp"
+        android:textColor="@drawable/background_red"
+        />
+</android.support.constraint.ConstraintLayout>

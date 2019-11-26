@@ -1,4 +1,4 @@
-package com.example.tutorial;
+package com.nothing.unnamedplayer;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;

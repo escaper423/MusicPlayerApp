@@ -1,7 +1,6 @@
-package com.example.tutorial;
+package com.nothing.unnamedplayer;
 
 import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -13,13 +12,11 @@ import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.bumptech.glide.load.model.stream.MediaStoreImageThumbLoader;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-//using singleton pattern to be used as global resource class (playlist)
+//using singleton pattern to be used as global resource storage class (playlist)
 class MusicManager {
     private static final String TAG = "MusicManager";
     private static MusicManager musicManager = null;
@@ -31,10 +28,11 @@ class MusicManager {
 
     //Playback speed, shuffle status
     private float playbackSpeed = 1.0f;
-    private boolean isShuffling = false;
+    public boolean isShuffling = false;
 
-    //Currently Playing Index
+    //Currently Playing Index and file path
     private int currentIndex;
+    private String currentDirectory;
 
     public int getCurrentIndex(){
         return currentIndex;
@@ -43,12 +41,16 @@ class MusicManager {
         currentIndex = i;
     }
 
-    public boolean isShuffling(){ return isShuffling; }
+    public String getCurrentDirectory(){ return currentDirectory; }
+    public void setCurrentDirectory(String path) { currentDirectory = path; }
+
     public void setShuffling(boolean b) { isShuffling = b; }
     public void setPlaybackSpeed(float f) {
         playbackSpeed = f;
         mediaPlayer.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed(playbackSpeed));
     }
+
+
 
     public MediaPlayer createAndGetMusicPlayer(){
         if (mediaPlayer == null)
@@ -92,13 +94,13 @@ class MusicManager {
 
     //TODO : additional filter option needed
     //fills storedMusicList for initialization.
-    public void initMusicList(Context context, @Nullable String projection, @Nullable String selection,@Nullable String selectionArgs) {
+    public void initMusicList(Context context, @Nullable String[] projection, @Nullable String selection,@Nullable String[] selectionArgs) {
         if (storedMusicList.size() != 0)
             storedMusicList.clear();
 
         ContentResolver contentResolver = context.getContentResolver();
         Uri songUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        Cursor songCursor = contentResolver.query(songUri, null, null, null, "LOWER(" + MediaStore.Audio.Media.TITLE + ") ASC");
+        Cursor songCursor = contentResolver.query(songUri, projection, selection, selectionArgs, "LOWER(" + MediaStore.Audio.Media.TITLE + ") ASC");
 
         if (songCursor != null && songCursor.moveToFirst()) {
             int titleIndex = songCursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
@@ -131,7 +133,7 @@ class MusicManager {
         }
     }
 
-    //Resets current playlist. from storedList
+    //Resets current playlist. from stored music list
     public void resetMusicList(){
         currentMusicList.clear();
         for (Music m : storedMusicList){

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MusicPlayerProject</string>
+    <string name="app_name">UnnamedPlayer</string>
     <string name="tracks">Tracks</string>
     <string name="artists">Artists</string>
     <string name="bookmarks">Bookmarks</string>

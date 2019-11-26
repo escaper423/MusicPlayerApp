@@ -1,4 +1,4 @@
-package com.example.tutorial;
+package com.nothing.unnamedplayer;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -7,8 +7,11 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Toast;
+
+import com.nothing.unnamedplayer.R;
 
 public class MainActivity extends AppCompatActivity {
     private static final int MY_PERMISSION_REQUEST = 1;
@@ -32,7 +35,11 @@ public class MainActivity extends AppCompatActivity {
 
         viewPager.setAdapter(adaptor);
         tabLayout.setupWithViewPager(viewPager);
+
+        Toolbar toolbar = findViewById(R.id.main_toolbar);
+        setSupportActionBar(toolbar);
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         switch (requestCode) {

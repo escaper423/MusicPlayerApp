@@ -1,23 +1,17 @@
-package com.example.tutorial;
+package com.nothing.unnamedplayer;
 
-import android.Manifest;
-import android.content.Context;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import com.nothing.unnamedplayer.R;
 
 public class TrackFragment extends Fragment {
 
@@ -46,7 +40,7 @@ public class TrackFragment extends Fragment {
     public void onCreate (@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         musicManager = MusicManager.getInstance();
-        musicManager.initMusicList(getContext(),null,null,null);
+        musicManager.initMusicList(getContext(),null, MediaStore.Audio.Media.DURATION + ">= 20000" ,null);
         /*Collections.sort(musicManager.getMusicList(),new Comparator<Music>(){
             @Override
             public int compare(Music m1, Music m2){

@@ -1,11 +1,10 @@
-package com.example.tutorial;
+package com.nothing.unnamedplayer;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.ColorStateList;
-import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
@@ -22,6 +21,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.nothing.unnamedplayer.R;
+
 
 
 public class PlayActivity extends AppCompatActivity {
@@ -118,18 +119,24 @@ public class PlayActivity extends AppCompatActivity {
             else
                 mediaPlayer = musicManager.getMusicPlayer();
             setPlayButtonBackground();
-            //Shuffle and Repeat
-            if (musicManager.isShuffling() == true)
-                shuffleButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.holo_red_dark, null)));
+            /*Shuffle and Repeat
+            in this case, i just display current state of repeat/shuffle using toggleButtonDisplay function
+            */
+            if (musicManager.isShuffling == true)
+                toggleButtonDisplay(1,"Shuffle");
+                //shuffleButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.holo_red_dark, null)));
             else
-                shuffleButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.white, null)));
+                toggleButtonDisplay(0,"Shuffle");
+                //shuffleButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.white, null)));
 
             if (mediaPlayer.isLooping() != false) {
-                repeatButton.setImageDrawable(ContextCompat.getDrawable(getApplication(), R.drawable.ic_repeat_one_black_24dp));
-                repeatButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.holo_red_dark, null)));
+                toggleButtonDisplay(1,"Repeat");
+                //repeatButton.setImageDrawable(ContextCompat.getDrawable(getApplication(), R.drawable.ic_repeat_one_black_24dp));
+                //repeatButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.holo_red_dark, null)));
             } else {
-                repeatButton.setImageDrawable(ContextCompat.getDrawable(getApplication(), R.drawable.ic_repeat_black_24dp));
-                repeatButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.white, null)));
+                toggleButtonDisplay(0,"Repeat");
+                //repeatButton.setImageDrawable(ContextCompat.getDrawable(getApplication(), R.drawable.ic_repeat_black_24dp));
+                //repeatButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.white, null)));
             }
 
         } else
@@ -225,6 +232,33 @@ public class PlayActivity extends AppCompatActivity {
         playButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(playButtonBackgroundColor, null)));
     }
 
+    /*  state : expected next state
+        buttonType
+            Repeat
+            Shuffleg
+    */
+
+    private void toggleButtonDisplay(int state, String buttonType){
+        if (buttonType.equals("Repeat")){
+            if(state == 0){
+                repeatButton.setImageDrawable(ContextCompat.getDrawable(getApplication(), R.drawable.ic_repeat_black_24dp));
+                repeatButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.white, null)));
+            }
+            else{
+                repeatButton.setImageDrawable(ContextCompat.getDrawable(getApplication(), R.drawable.ic_repeat_one_black_24dp));
+                repeatButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.holo_red_dark, null)));
+            }
+        }
+        else if (buttonType.equals("Shuffle")){
+            if(state == 0){
+                shuffleButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.white, null)));
+            }
+            else{
+                shuffleButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.holo_red_dark, null)));
+
+            }
+        }
+    }
 
     public void controlClick(View v) {
         int viewId = v.getId();
@@ -255,24 +289,28 @@ public class PlayActivity extends AppCompatActivity {
             case R.id.btn_repeat:
                 if (mediaPlayer.isLooping() == false) {
                     mediaPlayer.setLooping(true);
-                    repeatButton.setImageDrawable(ContextCompat.getDrawable(getApplication(), R.drawable.ic_repeat_one_black_24dp));
-                    repeatButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.holo_red_dark, null)));
+                    toggleButtonDisplay(1,"Repeat");
+                    //repeatButton.setImageDrawable(ContextCompat.getDrawable(getApplication(), R.drawable.ic_repeat_one_black_24dp));
+                    //repeatButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.holo_red_dark, null)));
                     Toast.makeText(getApplicationContext(), "Repeat Enabled.", Toast.LENGTH_SHORT).show();
                 } else {
                     mediaPlayer.setLooping(false);
-                    repeatButton.setImageDrawable(ContextCompat.getDrawable(getApplication(), R.drawable.ic_repeat_black_24dp));
-                    repeatButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.white, null)));
+                    toggleButtonDisplay(0,"Repeat");
+                    //repeatButton.setImageDrawable(ContextCompat.getDrawable(getApplication(), R.drawable.ic_repeat_black_24dp));
+                    //repeatButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.white, null)));
                     Toast.makeText(getApplicationContext(), "Repeat Disabled.", Toast.LENGTH_SHORT).show();
                 }
                 break;
             case R.id.btn_shuffle:
-                if (musicManager.isShuffling() == false) {
-                    shuffleButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.holo_red_dark, null)));
+                if (musicManager.isShuffling == false) {
+                    //shuffleButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.holo_red_dark, null)));
+                    toggleButtonDisplay(1,"Shuffle");
                     musicManager.shuffleList();
                     musicManager.setCurrentIndex(musicManager.getPositionByIdx(musicManager.getCurrentIndex()));
                     Toast.makeText(getApplicationContext(), "Shuffle Enabled.", Toast.LENGTH_SHORT).show();
                 } else {
-                    shuffleButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.white, null)));
+                    //shuffleButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.white, null)));
+                    toggleButtonDisplay(0,"Shuffle");
                     musicManager.setCurrentIndex(musicManager.getMusicByIndex(musicManager.getCurrentIndex()).getMusicIndex());
                     musicManager.shuffleList();
                     Toast.makeText(getApplicationContext(), "Shuffle Disabled.", Toast.LENGTH_SHORT).show();
@@ -289,9 +327,11 @@ public class PlayActivity extends AppCompatActivity {
         runnable = new Runnable() {
             @Override
             public void run() {
-                durationBar.setProgress(Math.min(durationBar.getMax(), mediaPlayer.getCurrentPosition()));
-                currentDurationText.setText(musicInfoConverter.durationConvert(Math.min(durationBar.getMax(), mediaPlayer.getCurrentPosition())));
-                playCycle();
+                if (mediaPlayer != null) {
+                    durationBar.setProgress(Math.min(durationBar.getMax(), mediaPlayer.getCurrentPosition()));
+                    currentDurationText.setText(musicInfoConverter.durationConvert(Math.min(durationBar.getMax(), mediaPlayer.getCurrentPosition())));
+                    playCycle();
+                }
             }
         };
         handler.postDelayed(runnable, 100);
