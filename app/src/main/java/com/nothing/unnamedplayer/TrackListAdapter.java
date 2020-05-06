@@ -111,7 +111,7 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.View
                         switch(item.getItemId()){
                             //Add to bookmark list
                             case R.id.trackitem_menu_addlist:
-                                Toast.makeText(mContext,"Clicked: 'Add to bookmark'",Toast.LENGTH_SHORT);
+                                Toast.makeText(mContext.getApplicationContext(),"Clicked: 'Add to bookmark'",Toast.LENGTH_SHORT);
                                 Log.d("Popup Menu","Add to bookmark item clicked.");
                                 break;
                             case R.id.trackitem_menu_delete:
@@ -121,8 +121,11 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.View
                                 if (to_delete.exists()){
                                     //to_delete.delete();
                                     musicList.remove(i);
+                                    Toast.makeText(mContext.getApplicationContext(),"Deleted: "+m.getMusicTitle(),Toast.LENGTH_SHORT);
+                                    notifyDataSetChanged();
                                     Log.d("Delete File", "Path: "+m.getMusicPath());
                                     Log.d("Delete File","Deleting...");
+                                    Log.d("Music List:",Integer.toString(musicList.size()));
                                 }
                                 break;
 

@@ -23,8 +23,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        musicManager = MusicManager.getInstance();
         checkPermission();
+    }
+
+    protected void initMenu(){
+        musicManager = MusicManager.getInstance();
         tabLayout = (TabLayout) findViewById(R.id.main_tablayout);
         viewPager = (ViewPager) findViewById(R.id.main_pager);
         ViewPagerAdapter adaptor = new ViewPagerAdapter(getSupportFragmentManager());
@@ -47,10 +50,11 @@ public class MainActivity extends AppCompatActivity {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                         Toast.makeText(getApplicationContext(), "granted.", Toast.LENGTH_SHORT).show();
-
+                        initMenu();
                         //do something
                     } else {
                         Toast.makeText(getApplicationContext(), "not granted.", Toast.LENGTH_SHORT).show();
+                        System.exit(3);
                     }
                 }
         }
@@ -66,7 +70,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         else{
-            //do something
+            //initialize menu display and create musicManager
+            initMenu();
         }
     }
     public void onClick(View v)
