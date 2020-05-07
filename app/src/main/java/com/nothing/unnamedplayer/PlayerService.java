@@ -44,7 +44,7 @@ public class PlayerService extends Service {
             public void onPrepared(MediaPlayer mp) {
                 mp.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed(musicManager.getPlaybackSpeed()));
                 mp.start();
-                sendDisplayUpdate();
+                sendDisplayUpdate("Play");
             }
         });
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
@@ -92,8 +92,7 @@ public class PlayerService extends Service {
                 .setCustomContentView(notificationLayout)
                 .setCustomBigContentView(notificationLayout)
                 .build();*/
-        Notification channel = createNotificationWithStatus(m,Status.PAUSE);
-        startForeground(1, channel);
+        setDisplay(m,Status.PAUSE);
         Uri uri = Uri.parse(m.getMusicPath());
         mediaPlayer.reset();
         try {
@@ -104,8 +103,9 @@ public class PlayerService extends Service {
         }
     }
 
-    private void sendDisplayUpdate(){
+    private void sendDisplayUpdate(final String status){
         Intent intent = new Intent(Actions.ACTION_UPDATE);
+        intent.putExtra("Status",status);
         sendBroadcast(intent);
     }
     private void playPrevMusic() {
@@ -116,18 +116,17 @@ public class PlayerService extends Service {
         }
         musicManager.setCurrentIndex(ci);
 
-        if (mediaPlayer.isLooping() == true)
-            mediaPlayer.setLooping(false);
-
+        if (mediaPlayer.isLooping() == true){
+            musicManager.setMediaPlayerLooping(false);
+        }
         playMusic(musicManager.getMusicByIndex(musicManager.getCurrentIndex()));
-
     }
 
     private void playNextMusic() {
         musicManager.setCurrentIndex((musicManager.getCurrentIndex() + 1) % musicManager.getMusicSize());
 
         if (mediaPlayer.isLooping() == true)
-            mediaPlayer.setLooping(false);
+            musicManager.setMediaPlayerLooping(false);
 
         playMusic(musicManager.getMusicByIndex(musicManager.getCurrentIndex()));
     }
@@ -209,16 +208,26 @@ public class PlayerService extends Service {
 
     //same code repeats, and inefficient. so need to do some replace or merge
     private void pauseMusic(Music m) {
-        Notification channel = createNotificationWithStatus(m, Status.RESUME);
-        startForeground(1, channel);
-        sendDisplayUpdate();
+        setDisplay(m, Status.RESUME);
         mediaPlayer.pause();
     }
 
+    private void setDisplay(Music m, Status curStatus){
+        if (curStatus == Status.RESUME) {
+            Notification channel = createNotificationWithStatus(m, Status.RESUME);
+            startForeground(1, channel);
+            sendDisplayUpdate("Pause");
+        }
+        else if (curStatus == Status.PAUSE)
+        {
+            Notification channel = createNotificationWithStatus(m, Status.PAUSE);
+            startForeground(1, channel);
+            sendDisplayUpdate("Play");
+        }
+    }
+
     private void resumeMusic(Music m) {
-        Notification channel = createNotificationWithStatus(m, Status.PAUSE);
-        startForeground(1, channel);
-        sendDisplayUpdate();
+        setDisplay(m, Status.PAUSE);
         mediaPlayer.start();
     }
 
@@ -227,12 +236,14 @@ public class PlayerService extends Service {
      */
 
     public void stopPlayer() {
-        if (mediaPlayer != null) {
-            if (mediaPlayer.isPlaying())
-                mediaPlayer.stop();
-            mediaPlayer.release();
+        if (mediaPlayer == null) {
+            stopSelf();
         }
-        stopSelf();
+        else {
+            if (mediaPlayer.isPlaying())
+                mediaPlayer.pause();
+            stopSelf();
+        }
     }
 
     @Override
@@ -259,7 +270,8 @@ public class PlayerService extends Service {
 
     @Override
     public void onDestroy() {
+        Music m = musicManager.getMusicByIndex(musicManager.getCurrentIndex());
+        setDisplay(m,Status.RESUME);
         super.onDestroy();
-        stopPlayer();
     }
 }

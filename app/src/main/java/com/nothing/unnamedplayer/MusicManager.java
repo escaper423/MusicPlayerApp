@@ -29,6 +29,7 @@ class MusicManager {
     //Playback speed, shuffle status
     private float playbackSpeed = 1.0f;
     public boolean isShuffling = false;
+    public boolean isLooping = false;
 
     //Currently Playing Index and file path
     private int currentIndex;
@@ -51,7 +52,11 @@ class MusicManager {
     }
 
 
-
+    public void setMediaPlayerLooping(boolean state){
+        isLooping = state;
+        if (mediaPlayer != null)
+            mediaPlayer.setLooping(state);
+    }
     public MediaPlayer createAndGetMusicPlayer(){
         if (mediaPlayer == null)
             mediaPlayer = new MediaPlayer();

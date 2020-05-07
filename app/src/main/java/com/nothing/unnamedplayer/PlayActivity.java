@@ -23,6 +23,9 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.nothing.unnamedplayer.R;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 
 public class PlayActivity extends AppCompatActivity {
@@ -52,6 +55,7 @@ public class PlayActivity extends AppCompatActivity {
     Runnable runnable;
     Handler handler;
     BroadcastReceiver bReceiver;
+    boolean currentState = false;
     private static final String TAG = "PlayActivity";
 
     @Override
@@ -129,7 +133,7 @@ public class PlayActivity extends AppCompatActivity {
                 toggleButtonDisplay(0,"Shuffle");
                 //shuffleButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.white, null)));
 
-            if (mediaPlayer.isLooping() != false) {
+            if (musicManager.isLooping != false) {
                 toggleButtonDisplay(1,"Repeat");
                 //repeatButton.setImageDrawable(ContextCompat.getDrawable(getApplication(), R.drawable.ic_repeat_one_black_24dp));
                 //repeatButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.holo_red_dark, null)));
@@ -190,15 +194,19 @@ public class PlayActivity extends AppCompatActivity {
 
     private void playMusic() {
         doPlayService(Actions.ACTION_PLAY);
+        currentState = true;
         playCycle();
     }
 
     private void pauseMusic() {
+        currentState = false;
         setPlayButtonBackground();
         doPlayService(Actions.ACTION_PAUSE);
+
     }
 
     private void resumeMusic() {
+        currentState = true;
         setPlayButtonBackground();
         doPlayService(Actions.ACTION_RESUME);
         playCycle();
@@ -221,7 +229,7 @@ public class PlayActivity extends AppCompatActivity {
     }
 
     private void setPlayButtonBackground() {
-        if (mediaPlayer.isPlaying()) {
+        if (currentState == true) {
             playButtonIcon = R.drawable.ic_pause_black_24dp;
             playButtonBackgroundColor = R.color.playingColor;
         } else {
@@ -287,14 +295,14 @@ public class PlayActivity extends AppCompatActivity {
                 playNextMusic();
                 break;
             case R.id.btn_repeat:
-                if (mediaPlayer.isLooping() == false) {
-                    mediaPlayer.setLooping(true);
+                if (musicManager.isLooping == false) {
+                    musicManager.setMediaPlayerLooping(true);
                     toggleButtonDisplay(1,"Repeat");
                     //repeatButton.setImageDrawable(ContextCompat.getDrawable(getApplication(), R.drawable.ic_repeat_one_black_24dp));
                     //repeatButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.holo_red_dark, null)));
                     Toast.makeText(getApplicationContext(), "Repeat Enabled.", Toast.LENGTH_SHORT).show();
                 } else {
-                    mediaPlayer.setLooping(false);
+                    musicManager.setMediaPlayerLooping(false);
                     toggleButtonDisplay(0,"Repeat");
                     //repeatButton.setImageDrawable(ContextCompat.getDrawable(getApplication(), R.drawable.ic_repeat_black_24dp));
                     //repeatButton.setImageTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.white, null)));
@@ -321,9 +329,9 @@ public class PlayActivity extends AppCompatActivity {
 
     //TODO : Must solve some problems with this thread
     public void playCycle() {
-        if (musicManager.getMusicPlayer() == null)
+        if (mediaPlayer == null){
             return;
-
+        }
         runnable = new Runnable() {
             @Override
             public void run() {
@@ -334,7 +342,7 @@ public class PlayActivity extends AppCompatActivity {
                 }
             }
         };
-        handler.postDelayed(runnable, 100);
+        handler.postDelayed(runnable, 250);
     }
 
     @Override
@@ -366,6 +374,12 @@ public class PlayActivity extends AppCompatActivity {
         bReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+                String statusToUpdate = intent.getStringExtra("Status");
+                if (statusToUpdate.equals("Play"))
+                    currentState = true;
+                else if (statusToUpdate.equals("Pause"))
+                    currentState = false;
+
                 updateDisplay(musicManager.getCurrentIndex());
             }
         };
