@@ -28,12 +28,17 @@ class MusicManager {
 
     //Playback speed, shuffle status
     private float playbackSpeed = 1.0f;
+    private int isPlugged = 0;
+
     public boolean isShuffling = false;
     public boolean isLooping = false;
 
     //Currently Playing Index and file path
     private int currentIndex;
     private String currentDirectory;
+
+    public void setPlugState(int state){ isPlugged = state; }
+    public int getPlugState() { return isPlugged; }
 
     public int getCurrentIndex(){
         return currentIndex;

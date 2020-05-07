@@ -19,9 +19,5 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
             serviceIntent.setAction(action);
             context.startService(serviceIntent);
         }
-        //Stop if it's Earphone, Phone Calling...
-        else if (action.equals("android.bb")){
-
-        }
     }
 }

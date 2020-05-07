@@ -3,7 +3,10 @@ package com.nothing.unnamedplayer;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -23,6 +26,7 @@ public class PlayerService extends Service {
     private MusicManager musicManager;
     private MediaPlayer mediaPlayer;
     private AudioManager audioManager;
+    private BroadcastReceiver plugReceiver;
 
     enum Status {
         RESUME,
@@ -63,6 +67,7 @@ public class PlayerService extends Service {
         actVolume = (float) audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         maxVolume = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
         curVolume = actVolume / maxVolume;
+
 /*
         RemoteViews notificationLayout = new RemoteViews(getPackageName(), R.layout.notification_service);
 
@@ -93,6 +98,7 @@ public class PlayerService extends Service {
                 .setCustomBigContentView(notificationLayout)
                 .build();*/
         setDisplay(m,Status.PAUSE);
+        registerReceiver();
         Uri uri = Uri.parse(m.getMusicPath());
         mediaPlayer.reset();
         try {
@@ -209,6 +215,7 @@ public class PlayerService extends Service {
     //same code repeats, and inefficient. so need to do some replace or merge
     private void pauseMusic(Music m) {
         setDisplay(m, Status.RESUME);
+        unregisterReceiver(plugReceiver);
         mediaPlayer.pause();
     }
 
@@ -227,6 +234,7 @@ public class PlayerService extends Service {
     }
 
     private void resumeMusic(Music m) {
+        registerReceiver();
         setDisplay(m, Status.PAUSE);
         mediaPlayer.start();
     }
@@ -236,6 +244,7 @@ public class PlayerService extends Service {
      */
 
     public void stopPlayer() {
+        unregisterReceiver(plugReceiver);
         if (mediaPlayer == null) {
             stopSelf();
         }
@@ -273,5 +282,20 @@ public class PlayerService extends Service {
         Music m = musicManager.getMusicByIndex(musicManager.getCurrentIndex());
         setDisplay(m,Status.RESUME);
         super.onDestroy();
+    }
+
+    private void registerReceiver() {
+        plugReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                int stat = 0;
+                stat = intent.getIntExtra("state",stat);
+                if (stat == 0 && musicManager.getPlugState() == 1){
+                    pauseMusic(musicManager.getMusicByIndex(musicManager.getCurrentIndex()));
+                }
+                musicManager.setPlugState(stat);
+            }
+        };
+        registerReceiver(plugReceiver, new IntentFilter("android.intent.action.HEADSET_PLUG"));
     }
 }
