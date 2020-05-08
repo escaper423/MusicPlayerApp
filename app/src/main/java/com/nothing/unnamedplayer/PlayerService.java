@@ -244,13 +244,13 @@ public class PlayerService extends Service {
      */
 
     public void stopPlayer() {
-        unregisterReceiver(plugReceiver);
         if (mediaPlayer == null) {
             stopSelf();
         }
         else {
-            if (mediaPlayer.isPlaying())
+            if (mediaPlayer.isPlaying()) {
                 mediaPlayer.pause();
+            }
             stopSelf();
         }
     }
