@@ -5,8 +5,8 @@ Music player application with playback speed adjustment.
 - load all music files from internal storage
 - basic music player features (play, pause, prev, next)
 - music player service (play music in background)
-- speed adjustment (0.25x ~ 2.00x)
-- shuffle list
+- playback speed adjustmentment (0.25x ~ 2.00x)
+- music list shuffling
 
 ## Screenshots
 ### Music List
