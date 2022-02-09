@@ -8,4 +8,8 @@
     <string name="pic">Description</string>
     <string name="now_playing">Now Playing</string>
 
+    <string name="title">Title</string>
+    <string name="artist">Artist</string>
+
+
 </resources>

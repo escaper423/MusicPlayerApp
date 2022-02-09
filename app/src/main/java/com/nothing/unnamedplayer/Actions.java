@@ -11,5 +11,6 @@ public class Actions {
 
     //Actions used in PlayActivity
     public static final String ACTION_UPDATE = "com.nothing.unnamedplayer.update";
+    public static final String ACTION_ORIENTATION_CHANGED = "com.nothing.unnamedplayer.orientation_changed";
 
 }

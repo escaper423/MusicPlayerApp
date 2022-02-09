@@ -2,6 +2,7 @@ package com.nothing.unnamedplayer;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.support.design.widget.TabLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -10,10 +11,12 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Toast;
+import android.util.Log;
 
 import com.nothing.unnamedplayer.R;
 
 public class MainActivity extends AppCompatActivity {
+    private final static String TAG = "MainActivity";
     private static final int MY_PERMISSION_REQUEST = 1;
     private TabLayout tabLayout;
     private ViewPager viewPager;
@@ -21,9 +24,16 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG,"onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         checkPermission();
+    }
+
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig){
+
     }
 
     protected void initMenu(){

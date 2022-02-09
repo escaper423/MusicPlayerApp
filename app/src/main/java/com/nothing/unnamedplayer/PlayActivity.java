@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.ColorStateList;
+import android.content.res.Configuration;
 import android.media.MediaPlayer;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
@@ -58,11 +59,56 @@ public class PlayActivity extends AppCompatActivity {
     boolean currentState = false;
     private static final String TAG = "PlayActivity";
 
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        Log.e(TAG,"onConfigChanged Called.");
+        super.onConfigurationChanged(newConfig);
+
+        if(newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            Toast.makeText(getApplicationContext(), "landscape", Toast.LENGTH_SHORT).show();
+            setContentView(R.layout.activity_play);
+            Log.e(TAG,"layoutID: "+R.layout.activity_play);
+        }
+        else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
+            Toast.makeText(getApplicationContext(),"portrait",Toast.LENGTH_SHORT).show();
+            setContentView(R.layout.activity_play);
+            Log.e(TAG,"layoutID: "+R.layout.activity_play);
+        }
+        refreshNotificationLayout();
+    }
+
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState){
+        super.onSaveInstanceState(outState);
+        Log.e(TAG,"onSaveInstanceState Called");
+        outState.putCharSequence("title",musicTitle.getText());
+        outState.putCharSequence("artist",musicArtist.getText());
+        outState.putCharSequence("album",musicAlbum.getText());
+        outState.putCharSequence("current_duration",currentDurationText.getText());
+        outState.putCharSequence("total_duration",musicDuration.getText());
+        outState.putCharSequence("speedmult",speedMultText.getText());
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState){
+        super.onSaveInstanceState(savedInstanceState);
+        Log.e(TAG,"onRestoreInstanceState Called");
+        savedInstanceState.getCharSequence("title");
+        savedInstanceState.getCharSequence("artist");
+        savedInstanceState.getCharSequence("album");
+        savedInstanceState.getCharSequence("current_duration");
+        savedInstanceState.getCharSequence("total_duration");
+        savedInstanceState.getCharSequence("speedmult");
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate Called.");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play);
+        Log.e(TAG,"layoutID: "+R.layout.activity_play);
         musicImage = findViewById(R.id.imageView);
         musicTitle = findViewById(R.id.txt_title);
         musicArtist = findViewById(R.id.txt_artist);
@@ -86,7 +132,10 @@ public class PlayActivity extends AppCompatActivity {
         registerReceiver();
         updateDisplay(musicManager.getCurrentIndex());
         initProgressBars();
-        playMusic();
+
+        currentState = (mediaPlayer != null);
+        if (currentState)
+            playCycle();
     }
 
     /*
@@ -95,6 +144,7 @@ public class PlayActivity extends AppCompatActivity {
         isFirst : when it starts onCreate (first update) : 1
                   not first (is playing and pause or resume) : 0
      */
+
     private void updateDisplay(int idx) {
         Log.d(TAG, "updateDisplay Called.");
         Log.d(TAG, "updateDisplay index : " + idx);
@@ -192,10 +242,8 @@ public class PlayActivity extends AppCompatActivity {
         startService(serviceIntent);
     }
 
-    private void playMusic() {
-        doPlayService(Actions.ACTION_PLAY);
-        currentState = true;
-        playCycle();
+    private void refreshNotificationLayout(){
+        doPlayService(Actions.ACTION_ORIENTATION_CHANGED);
     }
 
     private void pauseMusic() {
@@ -229,7 +277,7 @@ public class PlayActivity extends AppCompatActivity {
     }
 
     private void setPlayButtonBackground() {
-        if (currentState == true) {
+        if (mediaPlayer.isPlaying()) {
             playButtonIcon = R.drawable.ic_pause_black_24dp;
             playButtonBackgroundColor = R.color.playingColor;
         } else {

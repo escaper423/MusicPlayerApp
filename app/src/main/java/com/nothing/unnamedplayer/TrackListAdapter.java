@@ -74,7 +74,7 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.View
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder viewHolder,final int i) {
+    public void onBindViewHolder(@NonNull final ViewHolder viewHolder, final int i) {
         Log.d(tag,"onBildViewholder Called.");
         final Music m = musicList.get(i);
         Glide.with(mContext)
@@ -93,9 +93,18 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.View
                 //Play Music Function by clicking one of elements in the list
                 musicManager.resetMusicList();
                 musicManager.setShuffling(false);
+
+                //Start Service
+                Intent serviceIntent = new Intent(mContext, PlayerService.class);
+                serviceIntent.setAction(Actions.ACTION_PLAY);
+                mContext.startService(serviceIntent);
+
+                //Switch Activity
                 Intent in = new Intent(mContext,PlayActivity.class);
                 in.putExtra("Index",i);
                 mContext.startActivity(in);
+
+
             }
         });
 
