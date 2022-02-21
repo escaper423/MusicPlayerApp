@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
         adaptor.AddFragment(new TrackFragment(), "Stored Tracks");
         adaptor.AddFragment(new BlankFragment(), "Current Tracks");
-        adaptor.AddFragment(new BlankFragment(), "Playlists");
+        adaptor.AddFragment(new PlaylistFragment(), "Playlists");
 
         viewPager.setAdapter(adaptor);
         tabLayout.setupWithViewPager(viewPager);

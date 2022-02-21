@@ -23,6 +23,8 @@
             />
         <activity android:name="com.nothing.unnamedplayer.MainActivity"
             />
+        <activity android:name="com.nothing.unnamedplayer.PlaylistActivity"
+            />
         <activity android:name="com.nothing.unnamedplayer.LoadingScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

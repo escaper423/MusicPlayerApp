@@ -24,7 +24,7 @@ class MusicManager {
     //Music lists and MediaPlayer object.
     private ArrayList<Music> storedMusicList;   //stores all musics in the device.
     private ArrayList<Music> currentMusicList;  //currently using playlist.
-    private MediaPlayer mediaPlayer = new MediaPlayer();
+    private MediaPlayer mediaPlayer;
 
     //Playback speed, shuffle status
     private float playbackSpeed = 1.0f;
@@ -40,6 +40,22 @@ class MusicManager {
     public void setPlugState(int state){ isPlugged = state; }
     public int getPlugState() { return isPlugged; }
 
+    public String getCurrentMusicTitle(){
+        return currentMusicList.get(currentIndex).getMusicTitle();
+    }
+
+    public String getCurrentMusicImage(){
+        return currentMusicList.get(currentIndex).getMusicImage();
+    }
+
+    public String getCurrentMusicArtist(){
+        return currentMusicList.get(currentIndex).getMusicArtist();
+    }
+
+    public String getCurrentMusicPath(){
+        return currentMusicList.get(currentIndex).getMusicPath();
+    }
+
     public int getCurrentIndex(){
         return currentIndex;
     }
@@ -53,7 +69,17 @@ class MusicManager {
     public void setShuffling(boolean b) { isShuffling = b; }
     public void setPlaybackSpeed(float f) {
         playbackSpeed = f;
+        boolean oldPlayerStatus = mediaPlayer.isPlaying();
+
+        //MediaPlayer automatically resume after setting playback speed by calling setPlaybackParams function.
+        //so save current mediaplayer status before calling it and restore the status.
         mediaPlayer.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed(playbackSpeed));
+        if (!oldPlayerStatus) {
+            mediaPlayer.pause();
+        }
+    }
+    public void preparePlaybackSpeed(float f){
+        playbackSpeed = f;
     }
 
 
@@ -72,11 +98,12 @@ class MusicManager {
         return playbackSpeed;
     }
 
-    public int getMusicSize() {
+    public int getMusicListSize() {
         return currentMusicList.size();
     }
 
     private MusicManager() {
+        mediaPlayer = new MediaPlayer();
         storedMusicList = new ArrayList<>();
         currentMusicList = new ArrayList<>();
     }
@@ -94,12 +121,18 @@ class MusicManager {
     public Music getMusicByIndex(int i) {
         return currentMusicList.get(i);
     }
+    public Music getStoredMusicByIndex(int i){
+        return storedMusicList.get(i);
+    }
 
     public ArrayList<Music> getCurrentMusicList() {
         return currentMusicList;
     }
     public ArrayList<Music> getStoredMusicList() {
         return storedMusicList;
+    }
+    public void setCurrentMusicList(ArrayList<Music> m){
+        currentMusicList = m;
     }
 
     //TODO : additional filter option needed
@@ -137,7 +170,7 @@ class MusicManager {
                     bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
                 }
 
-                storedMusicList.add(new Music(currentTitle, currentArtist, currentAlbum, currentDuration, currentPath, bitmap, songCursor.getPosition()));
+                storedMusicList.add(new Music(currentTitle, currentArtist, currentAlbum, currentDuration, currentPath, musicInfoConverter.getStringFromBitmap(bitmap), songCursor.getPosition()));
 
             } while (songCursor.moveToNext());
         }

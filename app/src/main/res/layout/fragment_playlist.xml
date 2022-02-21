@@ -4,13 +4,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimary"
-    tools:context=".TrackFragment">
+    tools:context=".PlaylistFragment">
 
     <android.support.v7.widget.RecyclerView
-        android:id = "@+id/track_recycler_view"
-        android:layout_width = "match_parent"
-        android:layout_height = "match_parent"
-        >
-
+        android:id="@+id/playlist_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
     </android.support.v7.widget.RecyclerView>
 </RelativeLayout>

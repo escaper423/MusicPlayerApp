@@ -8,9 +8,7 @@
     android:foregroundTint="@android:color/white"
     android:padding="10dp"
     android:elevation="15dp"
-
     android:id="@+id/track_list"
-
     >
 
     <de.hdodenhof.circleimageview.CircleImageView
@@ -59,8 +57,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:layout_marginRight="10dp"
         android:layout_marginTop="10dp"
+        android:layout_marginRight="10dp"
         android:src="@drawable/ic_more_vert_black_24dp" />
 
 </RelativeLayout>

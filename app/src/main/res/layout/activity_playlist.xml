@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/pa_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
+    tools:context=".PlaylistActivity"
+    >
+
+    <ImageView
+        android:id="@+id/pa_image"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/cardview_dark_background"
+        android:scaleType="fitXY"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.3"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/pa_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Title"
+        android:textSize="24sp"
+        android:textColor="#ffffff"
+        android:layout_marginTop="24dp"
+        android:layout_marginStart="24dp"
+        app:layout_constraintStart_toStartOf="@id/pa_image"
+        app:layout_constraintTop_toTopOf="@id/pa_image"
+        />
+
+    <TextView
+        android:id="@+id/pa_numtrack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#ffffff"
+        android:text="0 Track(s)"
+        android:textSize="18sp"
+        android:layout_marginStart="18dp"
+        android:layout_marginBottom="18dp"
+        app:layout_constraintBottom_toBottomOf="@+id/pa_image"
+        app:layout_constraintStart_toStartOf="@+id/pa_image" />
+
+    <TextView
+        android:id="@+id/pa_duration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#ffffff"
+        android:text="00:00:00"
+        android:textSize="18sp"
+        android:layout_marginEnd="18dp"
+        android:layout_marginBottom="18dp"
+        app:layout_constraintBottom_toBottomOf="@+id/pa_image"
+        app:layout_constraintEnd_toEndOf="@+id/pa_image" />
+
+    <TextView
+        android:id="@+id/pa_speedmult"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#ffffff"
+        android:text="1.0x"
+        android:textSize="18sp"
+        android:layout_marginEnd="18dp"
+
+        app:layout_constraintBottom_toTopOf="@+id/pa_duration"
+        app:layout_constraintEnd_toEndOf="@+id/pa_image" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/pa_tracklist"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.7"
+        app:layout_constraintVertical_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/pa_image"></android.support.v7.widget.RecyclerView>
+</android.support.constraint.ConstraintLayout>

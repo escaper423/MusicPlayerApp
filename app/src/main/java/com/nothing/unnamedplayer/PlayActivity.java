@@ -108,7 +108,6 @@ public class PlayActivity extends AppCompatActivity {
         Log.d(TAG, "onCreate Called.");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play);
-        Log.e(TAG,"layoutID: "+R.layout.activity_play);
         musicImage = findViewById(R.id.imageView);
         musicTitle = findViewById(R.id.txt_title);
         musicArtist = findViewById(R.id.txt_artist);
@@ -125,9 +124,6 @@ public class PlayActivity extends AppCompatActivity {
         speedBar = findViewById(R.id.speed_multiplier_bar);
         handler = new Handler();
         musicManager = MusicManager.getInstance();
-
-        Intent in = getIntent();
-        musicManager.setCurrentIndex(in.getIntExtra("Index", -1));
 
         registerReceiver();
         updateDisplay(musicManager.getCurrentIndex());
@@ -149,10 +145,10 @@ public class PlayActivity extends AppCompatActivity {
         Log.d(TAG, "updateDisplay Called.");
         Log.d(TAG, "updateDisplay index : " + idx);
         Music m = musicManager.getMusicByIndex(idx);
-        if (idx >= 0 && idx < musicManager.getMusicSize()) {
+        if (idx >= 0 && idx < musicManager.getMusicListSize()) {
 
             Glide.with(this)
-                    .load(m.getMusicImage())
+                    .load(musicInfoConverter.getBitmapFromString(m.getMusicImage()))
                     .placeholder(R.drawable.ic_music_basic)
                     .into(musicImage);
 
@@ -263,7 +259,7 @@ public class PlayActivity extends AppCompatActivity {
     private void playPrevMusic() {
         int ci = musicManager.getCurrentIndex();
         ci -= 1;
-        if (ci == -1) ci = musicManager.getMusicSize() - 1;
+        if (ci == -1) ci = musicManager.getMusicListSize() - 1;
         updateDisplay(ci);
         doPlayService(Actions.ACTION_PREV);
 
@@ -271,7 +267,7 @@ public class PlayActivity extends AppCompatActivity {
 
     private void playNextMusic() {
         int ci = musicManager.getCurrentIndex();
-        updateDisplay((ci + 1) % musicManager.getMusicSize());
+        updateDisplay((ci + 1) % musicManager.getMusicListSize());
         doPlayService(Actions.ACTION_NEXT);
 
     }
@@ -375,7 +371,6 @@ public class PlayActivity extends AppCompatActivity {
         }
     }
 
-    //TODO : Must solve some problems with this thread
     public void playCycle() {
         if (mediaPlayer == null){
             return;

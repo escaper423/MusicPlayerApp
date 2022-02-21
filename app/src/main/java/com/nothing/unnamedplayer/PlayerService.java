@@ -13,6 +13,7 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.session.MediaSession;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -21,6 +22,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
+import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
@@ -63,7 +65,6 @@ public class PlayerService extends Service {
                 }
             }
         });
-
     }
 
     private void playMusic(final Music m) {
@@ -105,7 +106,7 @@ public class PlayerService extends Service {
         int ci = musicManager.getCurrentIndex();
         ci -= 1;
         if (ci == -1) {
-            ci = musicManager.getMusicSize() - 1;
+            ci = musicManager.getMusicListSize() - 1;
         }
         musicManager.setCurrentIndex(ci);
 
@@ -116,7 +117,7 @@ public class PlayerService extends Service {
     }
 
     private void playNextMusic() {
-        musicManager.setCurrentIndex((musicManager.getCurrentIndex() + 1) % musicManager.getMusicSize());
+        musicManager.setCurrentIndex((musicManager.getCurrentIndex() + 1) % musicManager.getMusicListSize());
 
         if (mediaPlayer.isLooping())
             musicManager.setMediaPlayerLooping(false);
@@ -130,7 +131,7 @@ public class PlayerService extends Service {
         PendingIntent pPause, pNext, pPrev, pEnd, pResume;
         Log.e(TAG,"Creating Notification");
         //Resume player
-        if(mediaPlayer.isPlaying()) {
+        if (mediaPlayer.isPlaying()) {
             pauseIntent = new Intent(this, MyBroadcastReceiver.class).setAction(Actions.ACTION_PAUSE);
             pPause = PendingIntent.getBroadcast(this, 0, pauseIntent, 0);
 
@@ -145,7 +146,7 @@ public class PlayerService extends Service {
 
             notificationLayout.setTextViewText(R.id.notification_title, m.getMusicTitle());
             notificationLayout.setTextViewText(R.id.notification_artist, m.getMusicArtist());
-            notificationLayout.setImageViewBitmap(R.id.notification_image, m.getMusicImage());
+            notificationLayout.setImageViewBitmap(R.id.notification_image, musicInfoConverter.getBitmapFromString(m.getMusicImage()));
             notificationLayout.setImageViewResource(R.id.notification_play, R.drawable.ic_pause_black_24dp);
             notificationLayout.setOnClickPendingIntent(R.id.notification_prev, pPrev);
             notificationLayout.setOnClickPendingIntent(R.id.notification_next, pNext);
@@ -168,7 +169,7 @@ public class PlayerService extends Service {
 
             notificationLayout.setTextViewText(R.id.notification_title, m.getMusicTitle());
             notificationLayout.setTextViewText(R.id.notification_artist, m.getMusicArtist());
-            notificationLayout.setImageViewBitmap(R.id.notification_image, m.getMusicImage());
+            notificationLayout.setImageViewBitmap(R.id.notification_image, musicInfoConverter.getBitmapFromString(m.getMusicImage()));
             notificationLayout.setImageViewResource(R.id.notification_play, R.drawable.ic_play_arrow_black_24dp);
             notificationLayout.setOnClickPendingIntent(R.id.notification_prev, pPrev);
             notificationLayout.setOnClickPendingIntent(R.id.notification_next, pNext);
@@ -177,15 +178,12 @@ public class PlayerService extends Service {
         }
 
         return new NotificationCompat.Builder(getApplicationContext(), App.CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_music_video_black_24dp)
-                .setContentTitle("Unnamed Player")
-                .setSmallIcon(R.drawable.ic_music_basic)
-                .setStyle(new android.support.v4.media.app.NotificationCompat.MediaStyle())
-                .setShowWhen(false)
                 .setCustomContentView(notificationLayout)
-                .setCustomBigContentView(notificationLayout)
+                .setSmallIcon(R.drawable.ic_music_basic)
+                .setShowWhen(false)
+                .setOnlyAlertOnce(true)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
                 .build();
-
     }
 
     @Override
