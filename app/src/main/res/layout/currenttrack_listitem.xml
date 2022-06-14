@@ -8,11 +8,11 @@
     android:foregroundTint="@android:color/white"
     android:padding="10dp"
     android:elevation="15dp"
-    android:id="@+id/track_list"
+    android:id="@+id/ctrack_list"
     >
 
     <TextView
-        android:id="@+id/musicTitle"
+        android:id="@+id/cmusicTitle"
         android:layout_width="238dp"
         android:layout_height="wrap_content"
         android:paddingLeft="10dp"
@@ -21,33 +21,24 @@
         android:textSize="16sp" />
 
     <TextView
-        android:id="@+id/musicArtist"
+        android:id="@+id/cmusicArtist"
         android:layout_width="238dp"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/musicTitle"
+        android:layout_below="@+id/cmusicTitle"
         android:paddingLeft="10dp"
         android:text="Various Artist"
         android:textColor="#ffffff"
         android:textSize="13sp" />
 
     <TextView
-        android:id="@+id/musicDuration"
+        android:id="@+id/cmusicDuration"
         android:layout_width="238dp"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/musicArtist"
+        android:layout_below="@+id/cmusicArtist"
         android:paddingLeft="10dp"
         android:text="0:00"
         android:textColor="#ffffff"
         android:textSize="11sp"
         />
-
-    <ImageView
-        android:id="@+id/musicOption"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_alignParentRight="true"
-        android:layout_marginTop="10dp"
-        android:layout_marginRight="10dp"
-        android:src="@drawable/ic_more_vert_black_24dp" />
 
 </RelativeLayout>

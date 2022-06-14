@@ -4,10 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimary"
-    tools:context=".TracklistFragment">
+    tools:context=".CurrentPlaylistFragment">
 
     <android.support.v7.widget.RecyclerView
-        android:id = "@+id/track_recycler_view"
+        android:id = "@+id/current_track_recycler_view"
         android:layout_width = "match_parent"
         android:layout_height = "match_parent"
         >

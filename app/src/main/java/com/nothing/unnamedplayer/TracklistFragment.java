@@ -11,12 +11,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class TrackFragment extends Fragment {
+public class TracklistFragment extends Fragment {
 
-    private RecyclerView recyclerView;
     private MusicManager musicManager;
 
-    public TrackFragment() {
+    public TracklistFragment() {
         // Required empty public constructor
     }
 
@@ -25,7 +24,7 @@ public class TrackFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_track, container, false);
-        recyclerView = view.findViewById(R.id.track_recycler_view);
+        RecyclerView recyclerView = view.findViewById(R.id.track_recycler_view);
         TracklistAdapter trackListAdapter = new TracklistAdapter(musicManager.getStoredMusicList(),getContext());
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(trackListAdapter);
@@ -45,5 +44,4 @@ public class TrackFragment extends Fragment {
         });*/
         Log.d("MusicList","Music List Size : "+musicManager.getMusicListSize());
     }
-
 }

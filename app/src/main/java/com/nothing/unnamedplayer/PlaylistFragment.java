@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Map;
 
 public class PlaylistFragment extends Fragment {
-    private RecyclerView recyclerView;
 
     public PlaylistFragment() {
         // Required empty public constructor
@@ -27,7 +26,7 @@ public class PlaylistFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_playlist, container, false);
-        recyclerView = view.findViewById(R.id.playlist_recycler_view);
+        RecyclerView recyclerView = view.findViewById(R.id.playlist_recycler_view);
 
         ArrayList<String> playListNames = new ArrayList<>();
 
@@ -35,7 +34,6 @@ public class PlaylistFragment extends Fragment {
         Map<String, ?> playlistData = sharedPreferences.getAll();
         for(Map.Entry<String,?> entry: playlistData.entrySet()){
             playListNames.add(entry.getKey());
-            Log.e("Playlist Add", entry.getKey());
         }
 
         PlaylistAdapter playListAdapter = new PlaylistAdapter(playListNames, getContext());

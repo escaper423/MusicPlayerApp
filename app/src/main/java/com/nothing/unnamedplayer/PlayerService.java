@@ -32,13 +32,13 @@ import com.nothing.unnamedplayer.R;
 import java.io.IOException;
 
 
+
 public class PlayerService extends Service {
     private final static String TAG = "PlayerService";
 
     private MusicManager musicManager;
     private MediaPlayer mediaPlayer;
     private AudioManager audioManager;
-    private BroadcastReceiver plugReceiver = null;
     private NotificationManagerCompat notificationManager;
 
 
@@ -74,7 +74,6 @@ public class PlayerService extends Service {
         maxVolume = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
         curVolume = actVolume / maxVolume;
 
-        registerReceiver();
         Uri uri = Uri.parse(m.getMusicPath());
         mediaPlayer.reset();
         try {
@@ -127,8 +126,8 @@ public class PlayerService extends Service {
     private Notification createNotificationWithStatus(Music m) {
         RemoteViews notificationLayout = new RemoteViews(getPackageName(), R.layout.notification_service);
 
-        Intent pauseIntent, resumeIntent, nextIntent, prevIntent, endIntent;
-        PendingIntent pPause, pNext, pPrev, pEnd, pResume;
+        Intent pauseIntent, resumeIntent, nextIntent, prevIntent, endIntent, viewIntent;
+        PendingIntent pPause, pNext, pPrev, pEnd, pResume, pView;
         Log.e(TAG,"Creating Notification");
         //Resume player
         if (mediaPlayer.isPlaying()) {
@@ -144,14 +143,18 @@ public class PlayerService extends Service {
             endIntent = new Intent(this, MyBroadcastReceiver.class).setAction(Actions.ACTION_END);
             pEnd = PendingIntent.getBroadcast(this, 0, endIntent, 0);
 
+            viewIntent = new Intent(this, MyBroadcastReceiver.class).setAction(Actions.ACTION_VIEW);
+            pView = PendingIntent.getBroadcast(this,0,viewIntent,0);
+
             notificationLayout.setTextViewText(R.id.notification_title, m.getMusicTitle());
             notificationLayout.setTextViewText(R.id.notification_artist, m.getMusicArtist());
-            notificationLayout.setImageViewBitmap(R.id.notification_image, musicInfoConverter.getBitmapFromString(m.getMusicImage()));
+            notificationLayout.setImageViewBitmap(R.id.notification_image, musicManager.getBitmapFromMusicPath(m.getMusicPath()));
             notificationLayout.setImageViewResource(R.id.notification_play, R.drawable.ic_pause_black_24dp);
             notificationLayout.setOnClickPendingIntent(R.id.notification_prev, pPrev);
             notificationLayout.setOnClickPendingIntent(R.id.notification_next, pNext);
             notificationLayout.setOnClickPendingIntent(R.id.notification_play, pPause);
             notificationLayout.setOnClickPendingIntent(R.id.notification_end, pEnd);
+            notificationLayout.setOnClickPendingIntent(R.id.notification_image, pView);
         }
         //Pause player
         else {
@@ -167,14 +170,18 @@ public class PlayerService extends Service {
             endIntent = new Intent(this, MyBroadcastReceiver.class).setAction(Actions.ACTION_END);
             pEnd = PendingIntent.getBroadcast(this, 0, endIntent, 0);
 
+            viewIntent = new Intent(this, MyBroadcastReceiver.class).setAction(Actions.ACTION_VIEW);
+            pView = PendingIntent.getBroadcast(this,0,viewIntent,0);
+
             notificationLayout.setTextViewText(R.id.notification_title, m.getMusicTitle());
             notificationLayout.setTextViewText(R.id.notification_artist, m.getMusicArtist());
-            notificationLayout.setImageViewBitmap(R.id.notification_image, musicInfoConverter.getBitmapFromString(m.getMusicImage()));
+            notificationLayout.setImageViewBitmap(R.id.notification_image, musicManager.getBitmapFromMusicPath(m.getMusicPath()));
             notificationLayout.setImageViewResource(R.id.notification_play, R.drawable.ic_play_arrow_black_24dp);
             notificationLayout.setOnClickPendingIntent(R.id.notification_prev, pPrev);
             notificationLayout.setOnClickPendingIntent(R.id.notification_next, pNext);
             notificationLayout.setOnClickPendingIntent(R.id.notification_play, pResume);
             notificationLayout.setOnClickPendingIntent(R.id.notification_end, pEnd);
+            notificationLayout.setOnClickPendingIntent(R.id.notification_image, pView);
         }
 
         return new NotificationCompat.Builder(getApplicationContext(), App.CHANNEL_ID)
@@ -182,6 +189,7 @@ public class PlayerService extends Service {
                 .setSmallIcon(R.drawable.ic_music_basic)
                 .setShowWhen(false)
                 .setOnlyAlertOnce(true)
+                .setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
                 .build();
     }
@@ -194,7 +202,6 @@ public class PlayerService extends Service {
 
     //same code repeats, and inefficient. so need to do some replace or merge
     private void pauseMusic(Music m) {
-        unregisterReceiver(plugReceiver);
         mediaPlayer.pause();
         setDisplay(m);
     }
@@ -214,7 +221,6 @@ public class PlayerService extends Service {
     }
 
     private void resumeMusic(Music m) {
-        registerReceiver();
         mediaPlayer.start();
         setDisplay(m);
     }
@@ -242,23 +248,33 @@ public class PlayerService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.e(TAG, "onStartCommand Called.");
-        Log.e(TAG, "onStartCommand index : " + musicManager.getCurrentIndex());
         String actionToDo = intent.getAction();
-        Music m = musicManager.getMusicByIndex(musicManager.getCurrentIndex());
+
         if (actionToDo.equals(Actions.ACTION_PLAY)) {
+            Log.e(TAG, "onStartCommand index : " + musicManager.getCurrentIndex());
+            Music m = musicManager.getMusicByIndex(musicManager.getCurrentIndex());
             playMusic(m);
         } else if (actionToDo.equals(Actions.ACTION_PREV)) {
             playPrevMusic();
         } else if (actionToDo.equals(Actions.ACTION_NEXT)) {
             playNextMusic();
         } else if (actionToDo.equals(Actions.ACTION_PAUSE)) {
+            Log.e(TAG, "onStartCommand index : " + musicManager.getCurrentIndex());
+            Music m = musicManager.getMusicByIndex(musicManager.getCurrentIndex());
             pauseMusic(m);
         } else if (actionToDo.equals(Actions.ACTION_RESUME)) {
+            Log.e(TAG, "onStartCommand index : " + musicManager.getCurrentIndex());
+            Music m = musicManager.getMusicByIndex(musicManager.getCurrentIndex());
             resumeMusic(m);
         } else if (actionToDo.equals(Actions.ACTION_END)) {
             stopPlayer();
         } else if (actionToDo.equals(Actions.ACTION_ORIENTATION_CHANGED)){
             refreshPlayer();
+        }
+        else if (actionToDo.equals(Actions.ACTION_VIEW)){
+            Intent in = new Intent(this, PlayActivity.class);
+            in.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(in);
         }
         return START_NOT_STICKY;
     }
@@ -267,27 +283,10 @@ public class PlayerService extends Service {
     public void onDestroy() {
         Log.e(TAG,"onDestroy");
         notificationManager.cancel(1);
-        Music m = musicManager.getMusicByIndex(musicManager.getCurrentIndex());
-        setDisplay(m);
-        if(plugReceiver != null){
-            unregisterReceiver(plugReceiver);
-        }
-        super.onDestroy();
-    }
+        //Music m = musicManager.getMusicByIndex(musicManager.getCurrentIndex());
+        //setDisplay(m);
 
-    private void registerReceiver() {
-        plugReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                int stat = 0;
-                stat = intent.getIntExtra("state",stat);
-                if (stat == 0 && musicManager.getPlugState() == 1){
-                    pauseMusic(musicManager.getMusicByIndex(musicManager.getCurrentIndex()));
-                }
-                musicManager.setPlugState(stat);
-            }
-        };
-        registerReceiver(plugReceiver, new IntentFilter("android.intent.action." +
-                ""));
+        sendDisplayUpdate("Pause");
+        super.onDestroy();
     }
 }

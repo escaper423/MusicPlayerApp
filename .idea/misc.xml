@@ -3,6 +3,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Programming/Android/MusicPlayerApp/app/src/main/res/drawable/background_green.xml" value="0.1" />
         <entry key="..\:/Programming/Android/MusicPlayerApp/app/src/main/res/drawable/background_metal.xml" value="0.1" />
         <entry key="..\:/Programming/Android/MusicPlayerApp/app/src/main/res/drawable/background_red.xml" value="0.1" />
         <entry key="..\:/Programming/Android/MusicPlayerApp/app/src/main/res/drawable/ic_close_black_24dp.xml" value="0.1" />
@@ -22,15 +23,21 @@
         <entry key="..\:/Programming/Android/MusicPlayerApp/app/src/main/res/layout/activity_play.xml" value="0.1" />
         <entry key="..\:/Programming/Android/MusicPlayerApp/app/src/main/res/layout/activity_playlist.xml" value="0.1" />
         <entry key="..\:/Programming/Android/MusicPlayerApp/app/src/main/res/layout/addlist_input.xml" value="0.25" />
+        <entry key="..\:/Programming/Android/MusicPlayerApp/app/src/main/res/layout/change_speedmult_input.xml" value="0.15087719298245614" />
+        <entry key="..\:/Programming/Android/MusicPlayerApp/app/src/main/res/layout/currenttrack_listitem.xml" value="0.15087719298245614" />
         <entry key="..\:/Programming/Android/MusicPlayerApp/app/src/main/res/layout/fragment_blank.xml" value="0.18552631578947368" />
+        <entry key="..\:/Programming/Android/MusicPlayerApp/app/src/main/res/layout/fragment_current_playlist.xml" value="0.15087719298245614" />
         <entry key="..\:/Programming/Android/MusicPlayerApp/app/src/main/res/layout/fragment_playlist.xml" value="0.15219298245614035" />
         <entry key="..\:/Programming/Android/MusicPlayerApp/app/src/main/res/layout/fragment_track.xml" value="0.18552631578947368" />
         <entry key="..\:/Programming/Android/MusicPlayerApp/app/src/main/res/layout/main_playbar.xml" value="0.18552631578947368" />
-        <entry key="..\:/Programming/Android/MusicPlayerApp/app/src/main/res/layout/main_toolbar.xml" value="0.1" />
+        <entry key="..\:/Programming/Android/MusicPlayerApp/app/src/main/res/layout/main_toolbar.xml" value="0.22" />
         <entry key="..\:/Programming/Android/MusicPlayerApp/app/src/main/res/layout/notification_service.xml" value="0.25" />
         <entry key="..\:/Programming/Android/MusicPlayerApp/app/src/main/res/layout/playlist_item.xml" value="0.33" />
+        <entry key="..\:/Programming/Android/MusicPlayerApp/app/src/main/res/layout/rename_playlist_input.xml" value="0.16" />
         <entry key="..\:/Programming/Android/MusicPlayerApp/app/src/main/res/layout/track_listitem.xml" value="0.25" />
         <entry key="..\:/Programming/Android/MusicPlayerApp/app/src/main/res/menu/menu_playlist.xml" value="0.25" />
+        <entry key="..\:/Programming/Android/MusicPlayerApp/app/src/main/res/menu/menu_playlist_track.xml" value="0.15087719298245614" />
+        <entry key="..\:/Programming/Android/MusicPlayerApp/app/src/main/res/menu/menu_playlist_trackitem.xml" value="0.22" />
         <entry key="..\:/Programming/Android/MusicPlayerApp/app/src/main/res/menu/menu_trackitem.xml" value="0.22" />
       </map>
     </option>

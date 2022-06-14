@@ -22,12 +22,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.nothing.unnamedplayer.R;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
 
 public class PlayActivity extends AppCompatActivity {
     private TextView musicTitle;
@@ -66,12 +60,12 @@ public class PlayActivity extends AppCompatActivity {
         super.onConfigurationChanged(newConfig);
 
         if(newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            Toast.makeText(getApplicationContext(), "landscape", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Landscape", Toast.LENGTH_SHORT).show();
             setContentView(R.layout.activity_play);
             Log.e(TAG,"layoutID: "+R.layout.activity_play);
         }
         else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
-            Toast.makeText(getApplicationContext(),"portrait",Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(),"Portrait",Toast.LENGTH_SHORT).show();
             setContentView(R.layout.activity_play);
             Log.e(TAG,"layoutID: "+R.layout.activity_play);
         }
@@ -148,7 +142,7 @@ public class PlayActivity extends AppCompatActivity {
         if (idx >= 0 && idx < musicManager.getMusicListSize()) {
 
             Glide.with(this)
-                    .load(musicInfoConverter.getBitmapFromString(m.getMusicImage()))
+                    .load(musicManager.getBitmapFromMusicPath(m.getMusicPath()))
                     .placeholder(R.drawable.ic_music_basic)
                     .into(musicImage);
 

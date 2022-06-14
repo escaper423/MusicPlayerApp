@@ -1,55 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-
-    <EditText
-        android:id="@+id/addlist_name"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:background="@null"
-        android:hint="Enter List Name"
-        android:padding="8dp"
-        android:textSize="24dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintWidth_percent="0.9"
-
-        />
-
     <Button
-        android:id="@+id/addlist_multplus"
+        android:id="@+id/change_speedmult_plus"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:text="+"
         android:textSize="20dp"
-        app:layout_constraintBottom_toBottomOf="@id/addlist_multiplier"
+        app:layout_constraintBottom_toBottomOf="@id/change_speedmult_multiplier"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.12"
-        app:layout_constraintStart_toEndOf="@id/addlist_multiplier"
-        app:layout_constraintTop_toTopOf="@id/addlist_multiplier"
+        app:layout_constraintStart_toEndOf="@id/change_speedmult_multiplier"
+        app:layout_constraintTop_toTopOf="@id/change_speedmult_multiplier"
         app:layout_constraintVertical_bias="0.5" />
 
     <Button
-        android:id="@+id/addlist_multplusfive"
+        android:id="@+id/change_speedmult_plusfive"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:text="+5"
         android:textSize="20dp"
-        app:layout_constraintBottom_toBottomOf="@id/addlist_multiplier"
+        app:layout_constraintBottom_toBottomOf="@id/change_speedmult_multiplier"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.633"
-        app:layout_constraintStart_toEndOf="@id/addlist_multiplier"
-        app:layout_constraintTop_toTopOf="@id/addlist_multiplier" />
+        app:layout_constraintStart_toEndOf="@id/change_speedmult_multiplier"
+        app:layout_constraintTop_toTopOf="@id/change_speedmult_multiplier" />
 
     <TextView
-        android:id="@+id/addlist_multiplier"
+        android:id="@+id/change_speedmult_multiplier"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="16dp"
@@ -59,8 +40,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/addlist_name"
-        app:layout_constraintVertical_bias="0.05" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.5" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -69,40 +50,38 @@
         android:textColor="@android:color/black"
         android:textSize="24dp"
         android:layout_marginEnd="24dp"
-        app:layout_constraintBottom_toBottomOf="@id/addlist_multiplier"
-        app:layout_constraintEnd_toStartOf="@id/addlist_multplus"
-        app:layout_constraintStart_toEndOf="@id/addlist_multiplier"
-        app:layout_constraintTop_toTopOf="@id/addlist_multiplier"
+        app:layout_constraintBottom_toBottomOf="@id/change_speedmult_multiplier"
+        app:layout_constraintEnd_toStartOf="@id/change_speedmult_plus"
+        app:layout_constraintStart_toEndOf="@id/change_speedmult_multiplier"
+        app:layout_constraintTop_toTopOf="@id/change_speedmult_multiplier"
         app:layout_constraintVertical_bias="0.5" />
 
     <Button
-        android:id="@+id/addlist_multminus"
+        android:id="@+id/change_speedmult_minus"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:text="-"
         android:textSize="20dp"
         app:layout_constraintHorizontal_bias="0.88"
-        app:layout_constraintBottom_toBottomOf="@id/addlist_multiplier"
-        app:layout_constraintEnd_toStartOf="@id/addlist_multiplier"
+        app:layout_constraintBottom_toBottomOf="@id/change_speedmult_multiplier"
+        app:layout_constraintEnd_toStartOf="@id/change_speedmult_multiplier"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/addlist_multiplier"
+        app:layout_constraintTop_toTopOf="@id/change_speedmult_multiplier"
         app:layout_constraintVertical_bias="0.5"
 
         />
 
     <Button
-        android:id="@+id/addlist_multminusfive"
+        android:id="@+id/change_speedmult_minusfive"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:text="-5"
         android:textSize="20dp"
-        app:layout_constraintBottom_toBottomOf="@id/addlist_multiplier"
-        app:layout_constraintEnd_toStartOf="@id/addlist_multiplier"
+        app:layout_constraintBottom_toBottomOf="@id/change_speedmult_multiplier"
+        app:layout_constraintEnd_toStartOf="@id/change_speedmult_multiplier"
         app:layout_constraintHorizontal_bias="0.357"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/addlist_multiplier"
+        app:layout_constraintTop_toTopOf="@id/change_speedmult_multiplier"
 
         />
-
-
 </android.support.constraint.ConstraintLayout>

@@ -44,10 +44,6 @@ class MusicManager {
         return currentMusicList.get(currentIndex).getMusicTitle();
     }
 
-    public String getCurrentMusicImage(){
-        return currentMusicList.get(currentIndex).getMusicImage();
-    }
-
     public String getCurrentMusicArtist(){
         return currentMusicList.get(currentIndex).getMusicArtist();
     }
@@ -135,7 +131,6 @@ class MusicManager {
         currentMusicList = m;
     }
 
-    //TODO : additional filter option needed
     //fills storedMusicList for initialization.
     public void initMusicList(Context context, @Nullable String[] projection, @Nullable String selection,@Nullable String[] selectionArgs) {
         if (storedMusicList.size() != 0)
@@ -160,17 +155,7 @@ class MusicManager {
                 int currentDuration = songCursor.getInt(durationIndex); //milliseconds
                 String currentPath = songCursor.getString(pathIndex);
 
-                //Extract the cover image
-                MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-                mmr.setDataSource(currentPath);
-
-                byte[] data = mmr.getEmbeddedPicture();
-                Bitmap bitmap = null;
-                if (data != null) {
-                    bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-                }
-
-                storedMusicList.add(new Music(currentTitle, currentArtist, currentAlbum, currentDuration, currentPath, musicInfoConverter.getStringFromBitmap(bitmap), songCursor.getPosition()));
+                storedMusicList.add(new Music(currentTitle, currentArtist, currentAlbum, currentDuration, currentPath, songCursor.getPosition()));
 
             } while (songCursor.moveToNext());
         }
@@ -199,6 +184,7 @@ class MusicManager {
             isShuffling = true;
         }
     }
+
     public int getPositionByIdx(int idx){
         for(int i = 0; i < currentMusicList.size(); i++){
             if(idx == currentMusicList.get(i).getMusicIndex())
@@ -206,5 +192,17 @@ class MusicManager {
         }
         //Some error occured
         return -1;
+    }
+
+    public Bitmap getBitmapFromMusicPath(String path) {
+        //Extract the cover image
+        android.media.MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+        mmr.setDataSource(path);
+        byte[] data = mmr.getEmbeddedPicture();
+        Bitmap bitmap = null;
+        if (data != null) {
+            bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+        }
+        return bitmap;
     }
 }

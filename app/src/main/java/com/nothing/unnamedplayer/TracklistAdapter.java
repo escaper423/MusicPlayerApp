@@ -46,7 +46,6 @@ public class TracklistAdapter extends RecyclerView.Adapter<TracklistAdapter.View
     public static class ViewHolder extends RecyclerView.ViewHolder
     {
         //Music Info
-        CircleImageView musicImage;
         TextView musicTitle;
         TextView musicArtist;
         TextView musicDuration;
@@ -56,7 +55,6 @@ public class TracklistAdapter extends RecyclerView.Adapter<TracklistAdapter.View
 
         public ViewHolder(View itemView){
             super(itemView);
-            musicImage = itemView.findViewById(R.id.musicImage);
             musicTitle = itemView.findViewById(R.id.musicTitle);
             musicArtist = itemView.findViewById(R.id.musicArtist);
             musicDuration = itemView.findViewById(R.id.musicDuration);
@@ -85,13 +83,8 @@ public class TracklistAdapter extends RecyclerView.Adapter<TracklistAdapter.View
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder viewHolder, final int i) {
-        Log.e(TAG,"onBildViewholder Called.");
+        Log.e(TAG,"onBindViewHolder Called.");
         final Music m = musicList.get(i);
-        Glide.with(mContext)
-                .load(musicInfoConverter.getBitmapFromString(musicList.get(i).getMusicImage()))
-                .placeholder(R.drawable.ic_music_basic)
-                .into(viewHolder.musicImage);
-
         viewHolder.musicTitle.setText(m.getMusicTitle());
         viewHolder.musicArtist.setText(m.getMusicArtist());
         viewHolder.musicDuration.setText(musicInfoConverter.durationConvert(m.getMusicDuration()));
@@ -138,12 +131,24 @@ public class TracklistAdapter extends RecyclerView.Adapter<TracklistAdapter.View
                                 Log.d(TAG,"Delete item clicked.");
                                 File to_delete = new File(m.getMusicPath());
                                 if (to_delete.exists()){
-                                    //to_delete.delete();
+
+                                    //Stop actual player
+                                    Intent serviceIntent = new Intent(mContext, PlayerService.class);
+                                    serviceIntent.setAction(Actions.ACTION_END);
+                                    mContext.startService(serviceIntent);
+
+                                    to_delete.delete();
                                     musicList.remove(i);
+                                    ArrayList<Music> currentMusicList = musicManager.getCurrentMusicList();
+                                    if (currentMusicList != null && currentMusicList.size() > 0){
+                                        currentMusicList.remove(currentMusicList.indexOf(m));
+                                        for(int idx = 0; idx < currentMusicList.size(); idx++){
+                                            currentMusicList.get(idx).setMusicIndex(idx);
+                                        }
+                                    }
                                     Toast.makeText(mContext.getApplicationContext(),"Deleted: "+m.getMusicTitle(),Toast.LENGTH_SHORT);
                                     notifyDataSetChanged();
                                     Log.d(TAG, "Path: "+m.getMusicPath());
-                                    Log.d(TAG,"Deleting...");
                                     Log.d(TAG,Integer.toString(musicList.size()));
                                 }
                                 break;
@@ -261,7 +266,7 @@ public class TracklistAdapter extends RecyclerView.Adapter<TracklistAdapter.View
                     else{
                         playList = new Playlist();
                     }
-                    Log.e(TAG,Integer.toString(i));
+
                     //Adding a music to playlist
                     Music musicToAdd = musicManager.getStoredMusicByIndex(i);
                     musicToAdd.setMusicIndex(playList.getCountTrack());

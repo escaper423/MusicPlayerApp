@@ -13,14 +13,12 @@
         android:layout_height="wrap_content"
         android:background="#000000"
         android:minHeight="?attr/actionBarSize"
-        android:visibility="invisible"
         />
 
     <android.support.design.widget.TabLayout
         android:id="@+id/main_tablayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="fill"
         android:background="@drawable/background_red"
         app:tabIndicatorColor="@color/colorPrimary"
         app:tabSelectedTextColor="@android:color/white"
@@ -33,7 +31,7 @@
         android:id="@+id/main_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/background_metal"
+        android:background="@drawable/background_red"
         android:visibility="visible">
 
 
