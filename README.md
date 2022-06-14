@@ -11,8 +11,10 @@ Music player application with playback speed adjustment.
 
 ## Screenshots
 ### Music List
-![Imgur](https://i.imgur.com/kROe4Fy.jpg)
+<img src="https://i.imgur.com/kROe4Fy.jpg" width="300">
+
 ### Service
-![Imgur](https://i.imgur.com/GiS1Gwa.jpg)
+<img src="https://i.imgur.com/GiS1Gwa.jpg" width="300">
+
 ### Play
-![Imgur](https://i.imgur.com/agzTlSG.png)
+<img src="https://i.imgur.com/agzTlSG.png" width="300">
