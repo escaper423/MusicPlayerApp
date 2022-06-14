@@ -7,6 +7,7 @@ Music player application with playback speed adjustment.
 - music player service (play music in background)
 - playback speed adjustmentment (0.25x ~ 2.00x)
 - music list shuffling
+- playlist adding
 
 ## Screenshots
 ### Music List
