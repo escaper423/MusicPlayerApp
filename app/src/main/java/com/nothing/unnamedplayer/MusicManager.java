@@ -25,10 +25,10 @@ class MusicManager {
     private ArrayList<Music> storedMusicList;   //stores all musics in the device.
     private ArrayList<Music> currentMusicList;  //currently using playlist.
     private MediaPlayer mediaPlayer;
+    private boolean hasInterrupted = false;
 
     //Playback speed, shuffle status
     private float playbackSpeed = 1.0f;
-    private int isPlugged = 0;
 
     public boolean isShuffling = false;
     public boolean isLooping = false;
@@ -37,8 +37,8 @@ class MusicManager {
     private int currentIndex;
     private String currentDirectory;
 
-    public void setPlugState(int state){ isPlugged = state; }
-    public int getPlugState() { return isPlugged; }
+    public void setInterruptState(boolean state) { hasInterrupted = state; }
+    public boolean getInterruptState() {return hasInterrupted; }
 
     public String getCurrentMusicTitle(){
         return currentMusicList.get(currentIndex).getMusicTitle();

@@ -23,6 +23,8 @@ import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
@@ -41,11 +43,10 @@ public class PlayerService extends Service {
     private AudioManager audioManager;
     private NotificationManagerCompat notificationManager;
 
-
     float actVolume, curVolume, maxVolume;
-/*
+    /*
 
-*/
+     */
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
     }
@@ -221,6 +222,12 @@ public class PlayerService extends Service {
     }
 
     private void resumeMusic(Music m) {
+
+        audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+        actVolume = (float) audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+        maxVolume = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+        curVolume = actVolume / maxVolume;
+
         mediaPlayer.start();
         setDisplay(m);
     }

@@ -92,13 +92,18 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
             {
                 //Play Music Function by clicking one of elements in the list
                 musicManager.setCurrentIndex(i);
-                notifyDataSetChanged();
 
                 //Switch Activity
                 Intent in = new Intent(mContext,PlayActivity.class);
                 in.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 mContext.startActivity(in);
 
+                //Start Service
+                Intent serviceIntent = new Intent(mContext, PlayerService.class);
+                serviceIntent.setAction(Actions.ACTION_PLAY);
+                mContext.startService(serviceIntent);
+
+                notifyDataSetChanged();
             }
         });
     }

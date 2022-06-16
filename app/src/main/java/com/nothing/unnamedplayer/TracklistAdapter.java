@@ -146,7 +146,7 @@ public class TracklistAdapter extends RecyclerView.Adapter<TracklistAdapter.View
                                             currentMusicList.get(idx).setMusicIndex(idx);
                                         }
                                     }
-                                    Toast.makeText(mContext.getApplicationContext(),"Deleted: "+m.getMusicTitle(),Toast.LENGTH_SHORT);
+                                    Toast.makeText(mContext.getApplicationContext(),"Deleted: "+m.getMusicTitle(),Toast.LENGTH_SHORT).show();
                                     notifyDataSetChanged();
                                     Log.d(TAG, "Path: "+m.getMusicPath());
                                     Log.d(TAG,Integer.toString(musicList.size()));
