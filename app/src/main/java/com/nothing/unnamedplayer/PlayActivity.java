@@ -158,6 +158,7 @@ public class PlayActivity extends AppCompatActivity {
             speedBar.setKeyProgressIncrement(1);
             speedMultText.setText(Float.toString(musicInfoConverter.getSpeedMultFromProgress(speedBar.getProgress())) + 'x');
 
+
             if (musicManager.getMusicPlayer() == null)
                 mediaPlayer = musicManager.createAndGetMusicPlayer();
             else

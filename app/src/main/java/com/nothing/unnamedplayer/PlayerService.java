@@ -4,27 +4,27 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothHeadset;
+import android.bluetooth.BluetoothManager;
+import android.bluetooth.BluetoothProfile;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
-import android.graphics.Bitmap;
+import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.session.MediaSession;
 import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
-import android.telephony.PhoneStateListener;
-import android.telephony.TelephonyManager;
+import android.text.Html;
 import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
@@ -42,6 +42,7 @@ public class PlayerService extends Service {
     private MediaPlayer mediaPlayer;
     private AudioManager audioManager;
     private NotificationManagerCompat notificationManager;
+    private EarphoneBroadcastReceiver earphoneBroadcastReceiver;
 
     float actVolume, curVolume, maxVolume;
     /*
@@ -66,6 +67,49 @@ public class PlayerService extends Service {
                 }
             }
         });
+
+        earphoneBroadcastReceiver = new EarphoneBroadcastReceiver();
+
+        IntentFilter earphoneFilter = new IntentFilter();
+        earphoneFilter.addAction(Intent.ACTION_HEADSET_PLUG);
+        earphoneFilter.addAction(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED);
+        registerReceiver(earphoneBroadcastReceiver, earphoneFilter);
+
+    }
+
+
+
+    private class EarphoneBroadcastReceiver extends BroadcastReceiver{
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+            AudioDeviceInfo[] deviceInfo = audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS);
+            Log.e(TAG, "Bluetooth or Earphone state");
+            boolean hasPlugged = false;
+
+            String action = intent.getAction();
+            //Wired Headset Plug State Changed.
+            for(AudioDeviceInfo device: deviceInfo){
+                if (device.getType() == AudioDeviceInfo.TYPE_WIRED_HEADSET){
+                    hasPlugged = true;
+                    break;
+                }
+            }
+
+            //Bluetooth Connection State Changed.
+            if (!hasPlugged && action.equals(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED)){
+                int state = intent.getIntExtra(BluetoothProfile.EXTRA_STATE,0);
+                if (state == BluetoothHeadset.STATE_CONNECTED || state == BluetoothHeadset.STATE_CONNECTING) {
+                    hasPlugged = true;
+                }
+            }
+
+            //both type of earphones are disconnected then pause.
+            if (!hasPlugged && mediaPlayer.isPlaying()){
+                pauseMusic(musicManager.getMusicByIndex(musicManager.getCurrentIndex()));
+                Log.e(TAG, "Earphone plugged off");
+            }
+        }
     }
 
     private void playMusic(final Music m) {
@@ -288,12 +332,12 @@ public class PlayerService extends Service {
 
     @Override
     public void onDestroy() {
+        super.onDestroy();
         Log.e(TAG,"onDestroy");
         notificationManager.cancel(1);
         //Music m = musicManager.getMusicByIndex(musicManager.getCurrentIndex());
         //setDisplay(m);
-
+        unregisterReceiver(earphoneBroadcastReceiver);
         sendDisplayUpdate("Pause");
-        super.onDestroy();
     }
 }

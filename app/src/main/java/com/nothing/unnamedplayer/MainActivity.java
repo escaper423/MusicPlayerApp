@@ -20,9 +20,10 @@ import android.util.Log;
 import java.util.ArrayList;
 
 
-/* TODO :   impl handling bluetooth and phone calling receiver
-            impl summarized progress bar
-            impl fragment resetting
+/* TODO :   summarized progress bar
+            fragment resetting
+            delete function properly
+
 */
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";

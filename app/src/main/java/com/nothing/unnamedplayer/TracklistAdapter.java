@@ -83,7 +83,6 @@ public class TracklistAdapter extends RecyclerView.Adapter<TracklistAdapter.View
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder viewHolder, final int i) {
-        Log.e(TAG,"onBindViewHolder Called.");
         final Music m = musicList.get(i);
         viewHolder.musicTitle.setText(m.getMusicTitle());
         viewHolder.musicArtist.setText(m.getMusicArtist());
