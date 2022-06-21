@@ -19,7 +19,7 @@ public class App extends Application {
     }
 
     private void createNotificationChannel(){
-        Log.e(TAG,"createNotifictionChannel Called");
+        Log.d(TAG,"createNotifictionChannel Called");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             NotificationChannel channel1 = new NotificationChannel(
                     CHANNEL_ID,

@@ -45,12 +45,6 @@ public class PlayerService extends Service {
     private EarphoneBroadcastReceiver earphoneBroadcastReceiver;
 
     float actVolume, curVolume, maxVolume;
-    /*
-
-     */
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-    }
 
     @Override
     public void onCreate() {
@@ -292,10 +286,6 @@ public class PlayerService extends Service {
         }
     }
 
-    private void refreshPlayer(){
-        Log.e(TAG,"refreshPlayer Called.");
-    }
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.e(TAG, "onStartCommand Called.");
@@ -319,11 +309,9 @@ public class PlayerService extends Service {
             resumeMusic(m);
         } else if (actionToDo.equals(Actions.ACTION_END)) {
             stopPlayer();
-        } else if (actionToDo.equals(Actions.ACTION_ORIENTATION_CHANGED)){
-            refreshPlayer();
         }
         else if (actionToDo.equals(Actions.ACTION_VIEW)){
-            Intent in = new Intent(this, PlayActivity.class);
+            Intent in = new Intent(this, MainActivity.class);
             in.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(in);
         }
@@ -335,8 +323,6 @@ public class PlayerService extends Service {
         super.onDestroy();
         Log.e(TAG,"onDestroy");
         notificationManager.cancel(1);
-        //Music m = musicManager.getMusicByIndex(musicManager.getCurrentIndex());
-        //setDisplay(m);
         unregisterReceiver(earphoneBroadcastReceiver);
         sendDisplayUpdate("Pause");
     }

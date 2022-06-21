@@ -163,6 +163,7 @@ public class PlayActivity extends AppCompatActivity {
                 mediaPlayer = musicManager.createAndGetMusicPlayer();
             else
                 mediaPlayer = musicManager.getMusicPlayer();
+
             setPlayButtonBackground();
             /*Shuffle and Repeat
             in this case, i just display current state of repeat/shuffle using toggleButtonDisplay function

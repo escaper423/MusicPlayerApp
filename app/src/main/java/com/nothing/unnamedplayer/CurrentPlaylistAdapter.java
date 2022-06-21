@@ -72,7 +72,7 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder viewHolder, final int i) {
-        Log.e(TAG,"onBindViewHolder Called.");
+        Log.d(TAG,"onBindViewHolder Called.");
         final Music m = musicList.get(i);
 
         if (musicManager.getCurrentIndex() == i){

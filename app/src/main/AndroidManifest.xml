@@ -43,7 +43,6 @@
                 <action android:name="com.nothing.unnamedplayer.end"/>
                 <action android:name="com.nothing.unnamedplayer.view"/>
                 <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
-                <action android:name="android.intent.action.HEADSET_PLUG"/>
                 <action android:name="android.intent.action.PHONE_STATE" />
             </intent-filter>
         </receiver>

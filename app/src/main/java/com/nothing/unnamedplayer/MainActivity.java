@@ -5,7 +5,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Handler;
 import android.provider.Settings;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -13,15 +15,19 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.support.v7.widget.AppCompatSeekBar;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.util.Log;
 
 import java.util.ArrayList;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 
-/* TODO :   summarized progress bar
-            fragment resetting
+
+/* TODO :   fragment resetting
             delete function properly
 
 */
@@ -35,11 +41,22 @@ public class MainActivity extends AppCompatActivity {
     private TabLayout tabLayout;
     private ViewPager viewPager;
 
+    private AppCompatSeekBar summarySeekbar;
+    private ConstraintLayout summaryLayout;
+    private CircleImageView summaryImage;
+    private TextView summaryTitle;
+    private TextView summaryArtist;
+    private MusicManager musicManager = MusicManager.getInstance();
+
+    private Runnable runnable;
+    private Handler handler;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        handler = new Handler();
         checkPermission();
     }
 
@@ -51,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
     */
     protected void checkPermission() {
         //at least one of permission is not granted
-        Log.e(TAG,"Checking Permission...");
+        Log.i(TAG,"Checking Permission...");
         ArrayList<String> perms = new ArrayList<String>();
 
         for (String p: permissions){
@@ -70,19 +87,19 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if (shouldShow) {
-                Log.e(TAG,"shouldShowRequestPermissionRationale True");
+                Log.d(TAG,"shouldShowRequestPermissionRationale True");
                 showConfirmDialog();
             }
 
             else{
-                Log.e(TAG,"shouldShowRequestPermissionRationale False");
+                Log.d(TAG,"shouldShowRequestPermissionRationale False");
                 ActivityCompat.requestPermissions(MainActivity.this, perms.toArray(new String[perms.size()]), MY_PERMISSION_REQUEST);
             }
         }
 
         //all perms are already granted
         else{
-            Log.e(TAG,"Loading main menu");
+            Log.i(TAG,"Loading main menu");
             initMenu();
         }
     }
@@ -100,12 +117,12 @@ public class MainActivity extends AppCompatActivity {
 
                     if (res == PackageManager.PERMISSION_GRANTED) {
                         Toast.makeText(this, "Permission Granted.", Toast.LENGTH_SHORT).show();
-                        Log.e(TAG,"Granted");
+                        Log.d(TAG,"Granted");
                         initMenu();
                     }
                     else{
                         Toast.makeText(this, "Permission Denied.", Toast.LENGTH_SHORT).show();
-                        Log.e(TAG,"Denied");
+                        Log.d(TAG,"Denied");
                         showConfirmDialog();
                     }
                 }
@@ -125,8 +142,21 @@ public class MainActivity extends AppCompatActivity {
         viewPager.setAdapter(adaptor);
         tabLayout.setupWithViewPager(viewPager);
 
-        Toolbar toolbar = findViewById(R.id.main_toolbar);
-        setSupportActionBar(toolbar);
+        summaryLayout = findViewById(R.id.main_summary);
+        summarySeekbar = findViewById(R.id.main_summary_seekbar);
+        summaryImage = findViewById(R.id.main_summary_image);
+        summaryTitle = findViewById(R.id.main_summary_title);
+        summaryArtist = findViewById(R.id.main_summary_artist);
+
+        summaryLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (musicManager.getCurrentIndex() != -1){
+                    Intent in = new Intent(MainActivity.this, PlayActivity.class);
+                    startActivity(in);
+                }
+            }
+        });
     }
 
     protected void showConfirmDialog(){
@@ -136,11 +166,6 @@ public class MainActivity extends AppCompatActivity {
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                /*ActivityCompat.requestPermissions(
-                        MainActivity.this,
-                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                        MY_PERMISSION_REQUEST
-                );*/
                 Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                         Uri.fromParts("package", getPackageName(), null));
                 startActivity(intent);
@@ -162,5 +187,32 @@ public class MainActivity extends AppCompatActivity {
     public void onBackPressed(){
         Toast.makeText(getApplicationContext(), "Back Pressed.", Toast.LENGTH_SHORT).show();
         finish();
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+        if (musicManager.getMusicPlayer() == null)
+            return;
+
+        summaryPlayCycle();
+    }
+
+
+    private void summaryPlayCycle(){
+        runnable = new Runnable() {
+            @Override
+            public void run() {
+                if (musicManager.getMusicPlayer() != null && musicManager.getCurrentIndex() != -1) {
+                    Music m = musicManager.getMusicByIndex(musicManager.getCurrentIndex());
+                    summaryTitle.setText(m.getMusicTitle());
+                    summaryArtist.setText(m.getMusicArtist());
+                    summarySeekbar.setMax(musicManager.getMusicPlayer().getDuration());
+                    summarySeekbar.setProgress(musicManager.getMusicPlayer().getCurrentPosition());
+                    summaryPlayCycle();
+                }
+            }
+        };
+        handler.postDelayed(runnable, 250);
     }
 }

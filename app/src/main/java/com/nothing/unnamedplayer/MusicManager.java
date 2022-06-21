@@ -34,7 +34,7 @@ class MusicManager {
     public boolean isLooping = false;
 
     //Currently Playing Index and file path
-    private int currentIndex;
+    private int currentIndex = -1;
     private String currentDirectory;
 
     public void setInterruptState(boolean state) { hasInterrupted = state; }
