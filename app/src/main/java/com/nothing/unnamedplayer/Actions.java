@@ -14,7 +14,7 @@ public class Actions {
     public static final String ACTION_UPDATE = "com.nothing.unnamedplayer.update";
     public static final String ACTION_ORIENTATION_CHANGED = "com.nothing.unnamedplayer.orientation_changed";
 
-    //
+    //Playlist Changed.
     public static final String ACTION_PLAYLISTTRACK_UPDATED = "com.nothing.unnamedplayer.playlist_track_updated";
 
 }

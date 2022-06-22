@@ -47,10 +47,10 @@ public class PlayActivity extends AppCompatActivity {
     private AppCompatSeekBar durationBar;
     private AppCompatSeekBar speedBar;
 
-    Runnable runnable;
-    Handler handler;
-    BroadcastReceiver bReceiver;
-    boolean currentState = false;
+    private Runnable runnable;
+    private Handler handler;
+    private BroadcastReceiver bReceiver;
+    private boolean currentState = false;
     private static final String TAG = "PlayActivity";
 
 

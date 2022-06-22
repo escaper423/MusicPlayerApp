@@ -1,8 +1,11 @@
 package com.nothing.unnamedplayer;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Handler;
@@ -17,10 +20,13 @@ import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.support.v7.widget.AppCompatSeekBar;
 import android.support.v7.widget.Toolbar;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.util.Log;
+
+import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 
@@ -50,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Runnable runnable;
     private Handler handler;
+    private BroadcastReceiver updateReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +64,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         handler = new Handler();
+
+        registerUpdateReceiver();
         checkPermission();
     }
 
@@ -157,6 +166,13 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        summarySeekbar.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return true;
+            }
+        });
     }
 
     protected void showConfirmDialog(){
@@ -198,21 +214,41 @@ public class MainActivity extends AppCompatActivity {
         summaryPlayCycle();
     }
 
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        unregisterReceiver(updateReceiver);
+    }
 
     private void summaryPlayCycle(){
         runnable = new Runnable() {
             @Override
             public void run() {
-                if (musicManager.getMusicPlayer() != null && musicManager.getCurrentIndex() != -1) {
-                    Music m = musicManager.getMusicByIndex(musicManager.getCurrentIndex());
-                    summaryTitle.setText(m.getMusicTitle());
-                    summaryArtist.setText(m.getMusicArtist());
-                    summarySeekbar.setMax(musicManager.getMusicPlayer().getDuration());
+                if (musicManager.getMusicPlayer() != null && musicManager.getMusicPlayer().isPlaying()) {
                     summarySeekbar.setProgress(musicManager.getMusicPlayer().getCurrentPosition());
                     summaryPlayCycle();
                 }
             }
         };
         handler.postDelayed(runnable, 250);
+    }
+
+    private void registerUpdateReceiver() {
+        updateReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (musicManager.getCurrentIndex() != -1){
+                    Music m = musicManager.getMusicByIndex(musicManager.getCurrentIndex());
+                    summaryTitle.setText(m.getMusicTitle());
+                    summaryArtist.setText(m.getMusicArtist());
+                    summarySeekbar.setMax(musicManager.getMusicPlayer().getDuration());
+                    Glide.with(getApplicationContext())
+                            .load(musicManager.getBitmapFromMusicPath(m.getMusicPath()))
+                            .placeholder(R.drawable.ic_music_basic)
+                            .into(summaryImage);
+                }
+            }
+        };
+        registerReceiver(updateReceiver, new IntentFilter(Actions.ACTION_UPDATE));
     }
 }
