@@ -61,32 +61,26 @@ public class PlayerService extends Service {
                 }
             }
         });
-
         earphoneBroadcastReceiver = new EarphoneBroadcastReceiver();
 
         IntentFilter earphoneFilter = new IntentFilter();
         earphoneFilter.addAction(Intent.ACTION_HEADSET_PLUG);
         earphoneFilter.addAction(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED);
         registerReceiver(earphoneBroadcastReceiver, earphoneFilter);
-
     }
-
-
 
     private class EarphoneBroadcastReceiver extends BroadcastReceiver{
         @Override
         public void onReceive(Context context, Intent intent) {
-            AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-            AudioDeviceInfo[] deviceInfo = audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS);
             Log.e(TAG, "Bluetooth or Earphone state");
             boolean hasPlugged = false;
 
             String action = intent.getAction();
             //Wired Headset Plug State Changed.
-            for(AudioDeviceInfo device: deviceInfo){
-                if (device.getType() == AudioDeviceInfo.TYPE_WIRED_HEADSET){
+            if (action.equals(Intent.ACTION_HEADSET_PLUG)){
+                int state = intent.getIntExtra("state",-1);
+                if (state == 1){
                     hasPlugged = true;
-                    break;
                 }
             }
 
@@ -123,7 +117,7 @@ public class PlayerService extends Service {
                 public void onPrepared(MediaPlayer mp) {
                     mp.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed(musicManager.getPlaybackSpeed()));
                     mp.start();
-                    Log.e(TAG,"musicPlayer Really Plays");
+                    Log.i(TAG,"musicPlayer Really Plays");
                     setDisplay(m);
                     sendDisplayUpdate("Play");
                 }
@@ -226,6 +220,7 @@ public class PlayerService extends Service {
         return new NotificationCompat.Builder(getApplicationContext(), App.CHANNEL_ID)
                 .setCustomContentView(notificationLayout)
                 .setSmallIcon(R.drawable.ic_music_basic)
+                .setCategory(Notification.CATEGORY_NAVIGATION)
                 .setShowWhen(false)
                 .setOnlyAlertOnce(true)
                 .setAutoCancel(true)
@@ -269,10 +264,6 @@ public class PlayerService extends Service {
         mediaPlayer.start();
         setDisplay(m);
     }
-
-    /**
-     * turn the service and mediaplayer off
-     */
 
     public void stopPlayer() {
         if (mediaPlayer == null) {

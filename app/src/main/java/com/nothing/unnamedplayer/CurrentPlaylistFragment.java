@@ -38,4 +38,6 @@ public class CurrentPlaylistFragment extends Fragment {
         musicManager = MusicManager.getInstance();
         super.onCreate(savedInstanceState);
     }
+
+
 }

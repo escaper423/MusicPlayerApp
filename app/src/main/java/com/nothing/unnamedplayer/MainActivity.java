@@ -13,6 +13,7 @@ import android.provider.Settings;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -149,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
         adaptor.AddFragment(new CurrentPlaylistFragment(), "Current Playing");
 
         viewPager.setAdapter(adaptor);
-        tabLayout.setupWithViewPager(viewPager);
+        tabLayout.setupWithViewPager(viewPager, true);
 
         summaryLayout = findViewById(R.id.main_summary);
         summarySeekbar = findViewById(R.id.main_summary_seekbar);

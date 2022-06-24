@@ -108,11 +108,13 @@ public class PlaylistTrackAdapter extends RecyclerView.Adapter<PlaylistTrackAdap
             @Override
             public void onClick(View view)
             {
+
                 //Play Music Function by clicking one of elements in the list
                 musicManager.setCurrentMusicList(musicList);
                 musicManager.setShuffling(false);
                 musicManager.preparePlaybackSpeed(playlist.getSpeedMult());
                 musicManager.setCurrentIndex(i);
+
                 //Switch Activity
                 Intent in = new Intent(mContext,PlayActivity.class);
                 mContext.startActivity(in);

@@ -47,4 +47,10 @@ public class PlaylistFragment extends Fragment {
         super.onCreate(savedInstanceState);
         Log.e("PlaylistFragment","onCreate Called");
     }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        Log.e("PlaylistFragment","onResume Called");
+    }
 }

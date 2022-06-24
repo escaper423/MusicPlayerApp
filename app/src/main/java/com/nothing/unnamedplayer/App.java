@@ -31,7 +31,8 @@ public class App extends Application {
                 manager.createNotificationChannel(channel1);
                 channel1.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
             }
-        }
 
+
+        }
     }
 }
