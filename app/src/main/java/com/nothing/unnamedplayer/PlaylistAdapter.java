@@ -150,17 +150,25 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.ViewHo
                                                     new DialogInterface.OnClickListener() {
                                                         @Override
                                                         public void onClick(DialogInterface dialog, int which) {
-                                                            String newName = newPlaylistNameText.getText().toString();
-                                                            String playlistString = gson.toJson(playlist);
-                                                            SharedPreferences.Editor editor = sharedPreferences.edit();
-                                                            playlistNames.remove(i);
-                                                            playlistNames.add(i, newName);
-                                                            editor.remove(listName);
-                                                            editor.putString(newName, playlistString);
-                                                            editor.commit();
-                                                            Toast.makeText(mContext.getApplicationContext(),
-                                                                    "Changed playlist name from " + listName + " to " + newName, Toast.LENGTH_SHORT)
-                                                                    .show();
+                                                            try {
+                                                                String newName = newPlaylistNameText.getText().toString();
+                                                                String playlistString = gson.toJson(playlist);
+                                                                SharedPreferences.Editor editor = sharedPreferences.edit();
+
+                                                                playlistNames.remove(i);
+                                                                playlistNames.add(i, newName);
+
+                                                                editor.remove(listName);
+                                                                editor.putString(newName, playlistString);
+                                                                editor.commit();
+                                                                sendUpdateBoradcast(v);
+                                                                Toast.makeText(mContext.getApplicationContext(),
+                                                                        "Changed playlist name from " + listName + " to " + newName, Toast.LENGTH_SHORT)
+                                                                        .show();
+                                                            }
+                                                            catch (Exception e){
+                                                                e.printStackTrace();
+                                                            }
                                                         }
                                                     });
                                     newPlaylistNameText = v.findViewById(R.id.rename_playlist_name);
@@ -183,14 +191,20 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.ViewHo
                                                     new DialogInterface.OnClickListener() {
                                                         @Override
                                                         public void onClick(DialogInterface dialog, int which) {
-                                                            playlist.setSpeedMult(Float.parseFloat(playbackSpeedMultText.getText().toString()));
-                                                            String playlistString = gson.toJson(playlist);
-                                                            SharedPreferences.Editor editor = sharedPreferences.edit();
-                                                            editor.putString(listName, playlistString);
-                                                            editor.commit();
-                                                            Toast.makeText(mContext.getApplicationContext(),
-                                                                    "Changed playback speedmult to " + playbackSpeedMultText.getText().toString(), Toast.LENGTH_SHORT)
-                                                                    .show();
+                                                            try {
+                                                                playlist.setSpeedMult(Float.parseFloat(playbackSpeedMultText.getText().toString()));
+                                                                String playlistString = gson.toJson(playlist);
+                                                                SharedPreferences.Editor editor = sharedPreferences.edit();
+                                                                editor.putString(listName, playlistString);
+                                                                editor.commit();
+                                                                sendUpdateBoradcast(v);
+                                                                Toast.makeText(mContext.getApplicationContext(),
+                                                                        "Changed playback speedmult to " + playbackSpeedMultText.getText().toString(), Toast.LENGTH_SHORT)
+                                                                        .show();
+                                                            }
+                                                            catch(Exception e){
+                                                                e.printStackTrace();
+                                                            }
                                                         }
                                                     });
                                     playbackSpeedMultText = v.findViewById(R.id.change_speedmult_multiplier);
@@ -257,6 +271,10 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.ViewHo
         }
     }
 
+    private void sendUpdateBoradcast(View v) {
+        Intent updateIntent = new Intent(Actions.ACTION_BOOKMARK_UPDATED);
+        v.getContext().sendBroadcast(updateIntent);
+    }
     @Override
     public int getItemCount() {
         return playlistNames.size();

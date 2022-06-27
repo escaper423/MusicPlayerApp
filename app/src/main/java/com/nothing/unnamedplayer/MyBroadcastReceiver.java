@@ -20,7 +20,7 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
         final String action = intent.getAction();
         String phoneState = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
         //MediaPlayer Actions.
-        Log.e(TAG,"Received Notification Pending Event.");
+        Log.d(TAG,"Received Notification Pending Event.");
         if (action.equals(Actions.ACTION_RESUME) ||
                 action.equals(Actions.ACTION_END) ||
                 action.equals(Actions.ACTION_NEXT) ||
@@ -34,7 +34,7 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
 
         //incoming or outgoing calling
         else if (phoneState.equals(TelephonyManager.EXTRA_STATE_RINGING) && musicManager.getMusicPlayer().isPlaying()){
-            Log.e(TAG,"Incoming Call");
+            Log.d(TAG,"Incoming Call");
             musicManager.setInterruptState(true);
             Toast.makeText(context,"Incoming Call",Toast.LENGTH_SHORT).show();
             sendActionToService(context,Actions.ACTION_PAUSE);
@@ -42,7 +42,7 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
 
 
         else if (phoneState.equals(TelephonyManager.EXTRA_STATE_OFFHOOK) && musicManager.getMusicPlayer().isPlaying()){
-            Log.e(TAG,"Outgoing Call");
+            Log.d(TAG,"Outgoing Call");
             musicManager.setInterruptState(true);
             Toast.makeText(context,"Outgoing Call",Toast.LENGTH_SHORT).show();
             sendActionToService(context,Actions.ACTION_PAUSE);
