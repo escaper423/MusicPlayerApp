@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Runnable runnable;
     private Handler handler;
-    private BroadcastReceiver updateReceiver, pageUpdateReceiver;
+    private BroadcastReceiver pageUpdateReceiver, playCycleReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,8 +66,30 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         handler = new Handler();
 
-        registerUpdateReceiver();
-        registerPageUpdateReceiver();
+        summaryLayout = findViewById(R.id.main_summary);
+        summarySeekbar = findViewById(R.id.main_summary_seekbar);
+        summaryImage = findViewById(R.id.main_summary_image);
+        summaryTitle = findViewById(R.id.main_summary_title);
+        summaryArtist = findViewById(R.id.main_summary_artist);
+
+        summaryLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (musicManager.getCurrentIndex() != -1){
+                    Intent in = new Intent(MainActivity.this, PlayActivity.class);
+                    startActivity(in);
+                }
+            }
+        });
+
+        summarySeekbar.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return true;
+            }
+        });
+
+        registerBroadcastReceivers();
         checkPermission();
     }
 
@@ -151,31 +173,7 @@ public class MainActivity extends AppCompatActivity {
         adaptor.AddFragment(new CurrentPlaylistFragment(), "Current Playing");
 
         viewPager.setAdapter(adaptor);
-
         tabLayout.setupWithViewPager(viewPager);
-
-        summaryLayout = findViewById(R.id.main_summary);
-        summarySeekbar = findViewById(R.id.main_summary_seekbar);
-        summaryImage = findViewById(R.id.main_summary_image);
-        summaryTitle = findViewById(R.id.main_summary_title);
-        summaryArtist = findViewById(R.id.main_summary_artist);
-
-        summaryLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (musicManager.getCurrentIndex() != -1){
-                    Intent in = new Intent(MainActivity.this, PlayActivity.class);
-                    startActivity(in);
-                }
-            }
-        });
-
-        summarySeekbar.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return true;
-            }
-        });
     }
 
     protected void showConfirmDialog(){
@@ -205,7 +203,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed(){
         Toast.makeText(getApplicationContext(), "Back Pressed.", Toast.LENGTH_SHORT).show();
-        finish();
+        super.onBackPressed();
     }
 
     @Override
@@ -214,13 +212,16 @@ public class MainActivity extends AppCompatActivity {
         if (musicManager.getMusicPlayer() == null)
             return;
 
+        setupMusicStatus();
+        summarySeekbar.setProgress(musicManager.getMusicPlayer().getCurrentPosition());
         summaryPlayCycle();
     }
 
     @Override
     protected void onDestroy(){
         super.onDestroy();
-        unregisterReceiver(updateReceiver);
+        unregisterReceiver(pageUpdateReceiver);
+        unregisterReceiver(playCycleReceiver);
     }
 
     private void summaryPlayCycle(){
@@ -236,37 +237,46 @@ public class MainActivity extends AppCompatActivity {
         handler.postDelayed(runnable, 250);
     }
 
-    private void registerUpdateReceiver() {
-        updateReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if (musicManager.getCurrentIndex() != -1){
-                    Music m = musicManager.getMusicByIndex(musicManager.getCurrentIndex());
-                    summaryTitle.setText(m.getMusicTitle());
-                    summaryArtist.setText(m.getMusicArtist());
-                    summarySeekbar.setMax(musicManager.getMusicPlayer().getDuration());
-                    Glide.with(getApplicationContext())
-                            .load(musicManager.getBitmapFromMusicPath(m.getMusicPath()))
-                            .placeholder(R.drawable.ic_music_basic)
-                            .into(summaryImage);
-                }
-            }
-        };
-        registerReceiver(updateReceiver, new IntentFilter(Actions.ACTION_UPDATE));
+    private void setupMusicStatus(){
+        if (musicManager.getCurrentIndex() != -1){
+            Music m = musicManager.getMusicByIndex(musicManager.getCurrentIndex());
+            summaryTitle.setText(m.getMusicTitle());
+            summaryArtist.setText(m.getMusicArtist());
+            summarySeekbar.setMax(musicManager.getMusicPlayer().getDuration());
+            Glide.with(getApplicationContext())
+                    .load(musicManager.getBitmapFromMusicPath(m.getMusicPath()))
+                    .placeholder(R.drawable.ic_music_basic)
+                    .into(summaryImage);
+        }
     }
 
-    private void registerPageUpdateReceiver(){
+    private void registerBroadcastReceivers(){
         pageUpdateReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                Log.e(TAG,"Pager Updated");
                 viewPager.getAdapter().notifyDataSetChanged();
             }
         };
+
+        playCycleReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                setupMusicStatus();
+                summaryPlayCycle();
+            }
+        };
+
         IntentFilter pageUpdateFilter = new IntentFilter();
+        IntentFilter playCycleFilter = new IntentFilter();
+
         pageUpdateFilter.addAction(Actions.ACTION_UPDATE);
         pageUpdateFilter.addAction(Actions.ACTION_CURRENT_PLAYLIST_CHANGED);
         pageUpdateFilter.addAction(Actions.ACTION_PLAYLIST_TRACK_UPDATED);
+
+        playCycleFilter.addAction(Actions.ACTION_RESUME);
+        playCycleFilter.addAction(Actions.ACTION_UPDATE);
+
         registerReceiver(pageUpdateReceiver, pageUpdateFilter);
+        registerReceiver(playCycleReceiver, playCycleFilter);
     }
 }
