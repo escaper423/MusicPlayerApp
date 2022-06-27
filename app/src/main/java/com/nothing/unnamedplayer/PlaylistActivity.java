@@ -97,10 +97,13 @@ public class PlaylistActivity extends AppCompatActivity {
                 Log.e(TAG,"Playlist Track Update Received");
                 Intent in = getIntent();
                 finish();
+                //overridePendingTransition removes animaiton to recreation
+                overridePendingTransition(0,0);
                 startActivity(in);
+                overridePendingTransition(0,0);
             }
         };
-        registerReceiver(changeListReceiver, new IntentFilter(Actions.ACTION_PLAYLISTTRACK_UPDATED));
+        registerReceiver(changeListReceiver, new IntentFilter(Actions.ACTION_PLAYLIST_TRACK_UPDATED));
     }
 
     @Override

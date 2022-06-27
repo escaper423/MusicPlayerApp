@@ -110,7 +110,7 @@ public class PlaylistTrackAdapter extends RecyclerView.Adapter<PlaylistTrackAdap
             {
 
                 //Play Music Function by clicking one of elements in the list
-                musicManager.setCurrentMusicList(musicList);
+                musicManager.setCurrentMusicList(mContext,musicList);
                 musicManager.setShuffling(false);
                 musicManager.preparePlaybackSpeed(playlist.getSpeedMult());
                 musicManager.setCurrentIndex(i);
@@ -142,11 +142,11 @@ public class PlaylistTrackAdapter extends RecyclerView.Adapter<PlaylistTrackAdap
                             case R.id.playlist_trackitem_delete:
                                 Toast.makeText(mContext.getApplicationContext(),"Deleted "+viewHolder.musicTitle.getText().toString()+" from playlist",Toast.LENGTH_SHORT).show();
                                 musicList.remove(i);
-                                musicManager.setCurrentMusicList(musicList);
+                                musicManager.setCurrentMusicList(mContext,musicList);
                                 SharedPreferences.Editor editor = sp.edit();
 
                                 //Stop actual player
-                                Intent serviceIntent = new Intent(Actions.ACTION_PLAYLISTTRACK_UPDATED);
+                                Intent serviceIntent = new Intent(Actions.ACTION_PLAYLIST_TRACK_UPDATED);
                                 mContext.sendBroadcast(serviceIntent);
 
                                 if (musicList.size() == 0){

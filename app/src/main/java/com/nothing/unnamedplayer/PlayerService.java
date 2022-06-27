@@ -61,6 +61,7 @@ public class PlayerService extends Service {
                 }
             }
         });
+
         earphoneBroadcastReceiver = new EarphoneBroadcastReceiver();
 
         IntentFilter earphoneFilter = new IntentFilter();
@@ -271,7 +272,7 @@ public class PlayerService extends Service {
         }
         else {
             if (mediaPlayer.isPlaying()) {
-                mediaPlayer.pause();
+                mediaPlayer.stop();
             }
             stopSelf();
         }

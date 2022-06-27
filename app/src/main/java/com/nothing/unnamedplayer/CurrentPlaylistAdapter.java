@@ -103,7 +103,6 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
                 serviceIntent.setAction(Actions.ACTION_PLAY);
                 mContext.startService(serviceIntent);
 
-                notifyDataSetChanged();
             }
         });
     }

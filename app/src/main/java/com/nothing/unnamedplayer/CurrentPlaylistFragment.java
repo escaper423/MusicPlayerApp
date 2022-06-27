@@ -1,14 +1,10 @@
 package com.nothing.unnamedplayer;
 
-import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +26,7 @@ public class CurrentPlaylistFragment extends Fragment {
         CurrentPlaylistAdapter currentPlaylistAdapter = new CurrentPlaylistAdapter(musicManager.getCurrentMusicList(), getContext());
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(currentPlaylistAdapter);
+
         return view;
     }
 
@@ -39,5 +36,10 @@ public class CurrentPlaylistFragment extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+
+    }
 
 }

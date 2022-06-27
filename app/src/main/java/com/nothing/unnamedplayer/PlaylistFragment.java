@@ -52,5 +52,6 @@ public class PlaylistFragment extends Fragment {
     public void onResume(){
         super.onResume();
         Log.e("PlaylistFragment","onResume Called");
+
     }
 }

@@ -2,6 +2,7 @@ package com.nothing.unnamedplayer;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -127,8 +128,12 @@ class MusicManager {
     public ArrayList<Music> getStoredMusicList() {
         return storedMusicList;
     }
-    public void setCurrentMusicList(ArrayList<Music> m){
+    public void setCurrentMusicList(Context context, ArrayList<Music> m){
         currentMusicList = m;
+
+        //Send musiclist update broadcast
+        Intent playlistChangedBroadcast = new Intent(Actions.ACTION_CURRENT_PLAYLIST_CHANGED);
+        context.sendBroadcast(playlistChangedBroadcast);
     }
 
     //fills storedMusicList for initialization.

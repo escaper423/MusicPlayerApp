@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.hardware.usb.UsbEndpoint;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
@@ -266,7 +267,7 @@ public class TracklistAdapter extends RecyclerView.Adapter<TracklistAdapter.View
                         playList = new Playlist();
                     }
 
-                    //Adding a music to playlist
+                    //Adding a music to playlist object
                     Music musicToAdd = musicManager.getStoredMusicByIndex(i);
                     musicToAdd.setMusicIndex(playList.getCountTrack());
                     playList.getMusicList().add(musicToAdd);
@@ -275,11 +276,18 @@ public class TracklistAdapter extends RecyclerView.Adapter<TracklistAdapter.View
                     playList.setSpeedMult(Float.parseFloat(listMult));
                     playList.setCountTrack(playList.getMusicList().size());
 
+                    //Actual playlist adding (from playlist object)
                     String listToAdd = gson.toJson(playList);
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString(listName,listToAdd);
                     editor.apply();
+
+                    //Sending playlist modification broadcast
+                    Intent addIntent = new Intent(Actions.ACTION_PLAYLIST_TRACK_UPDATED);
+                    v.getContext().sendBroadcast(addIntent);
+
                     dialog.dismiss();
+
                 }
             }
         });

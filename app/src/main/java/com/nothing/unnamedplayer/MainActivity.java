@@ -14,6 +14,7 @@ import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -34,8 +35,7 @@ import java.util.ArrayList;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 
-/* TODO :   fragment resetting
-            delete function properly
+/* TODO : delete function properly
 
 */
 public class MainActivity extends AppCompatActivity {
@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Runnable runnable;
     private Handler handler;
-    private BroadcastReceiver updateReceiver;
+    private BroadcastReceiver updateReceiver, pageUpdateReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
         handler = new Handler();
 
         registerUpdateReceiver();
+        registerPageUpdateReceiver();
         checkPermission();
     }
 
@@ -150,7 +151,8 @@ public class MainActivity extends AppCompatActivity {
         adaptor.AddFragment(new CurrentPlaylistFragment(), "Current Playing");
 
         viewPager.setAdapter(adaptor);
-        tabLayout.setupWithViewPager(viewPager, true);
+
+        tabLayout.setupWithViewPager(viewPager);
 
         summaryLayout = findViewById(R.id.main_summary);
         summarySeekbar = findViewById(R.id.main_summary_seekbar);
@@ -251,5 +253,20 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         registerReceiver(updateReceiver, new IntentFilter(Actions.ACTION_UPDATE));
+    }
+
+    private void registerPageUpdateReceiver(){
+        pageUpdateReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Log.e(TAG,"Pager Updated");
+                viewPager.getAdapter().notifyDataSetChanged();
+            }
+        };
+        IntentFilter pageUpdateFilter = new IntentFilter();
+        pageUpdateFilter.addAction(Actions.ACTION_UPDATE);
+        pageUpdateFilter.addAction(Actions.ACTION_CURRENT_PLAYLIST_CHANGED);
+        pageUpdateFilter.addAction(Actions.ACTION_PLAYLIST_TRACK_UPDATED);
+        registerReceiver(pageUpdateReceiver, pageUpdateFilter);
     }
 }
