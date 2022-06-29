@@ -25,6 +25,8 @@ import com.bumptech.glide.Glide;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Map;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -82,6 +84,51 @@ public class TracklistAdapter extends RecyclerView.Adapter<TracklistAdapter.View
         return holder;
     }
 
+    private void deleteCascade(String uri){
+        Gson gson = new Gson();
+
+        //Loading all bookmark
+        SharedPreferences sp = mContext.getSharedPreferences("playLists", Context.MODE_PRIVATE);
+        Map<String, ?> playlistData = sp.getAll();
+        if (playlistData != null){
+            Log.e(TAG,"Modifying bookmark lists...");
+            for(Map.Entry<String,?> entry: playlistData.entrySet()){
+                String bookmarkName = entry.getKey();
+
+                TypeToken<Playlist> token = new TypeToken<Playlist>() {};
+                Playlist playList = gson.fromJson(entry.getValue().toString(), token.getType());
+                ArrayList<Music> tracks = playList.getMusicList();
+
+                /*  delete cascading music
+                    due to ConcurrentModificationException, i used iterator to remove   */
+                Iterator<Music> it = tracks.iterator();
+                while(it.hasNext()) {
+                    if (it.next().getMusicPath().equals(uri)) {
+                        it.remove();
+                    }
+                }
+
+                //Putting modified list to the bookmark back
+                playList.setCountTrack(tracks.size());
+                SharedPreferences.Editor editor = sp.edit();
+
+                if (tracks.size() == 0){
+                    editor.remove(bookmarkName);
+                }
+                else {
+                    String newBookmark = gson.toJson(playList);
+                    editor.putString(bookmarkName, newBookmark);
+                    Log.e(TAG,"Bookmark has emptied. so deleted it");
+                }
+                editor.apply();
+                Log.e(TAG,"Modification done.");
+            }
+        }
+        else{
+            Log.e(TAG,"The bookmarks are not exist.");
+        }
+    }
+
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder viewHolder, final int i) {
         final Music m = musicList.get(i);
@@ -126,28 +173,30 @@ public class TracklistAdapter extends RecyclerView.Adapter<TracklistAdapter.View
                                 Toast.makeText(mContext.getApplicationContext(),"Clicked: 'Add to playlist'",Toast.LENGTH_SHORT).show();
                                 openDialog(view, i);
                                 break;
+
                             case R.id.trackitem_menu_delete:
                                 Toast.makeText(mContext.getApplicationContext(),"Clicked: 'Delete'",Toast.LENGTH_SHORT).show();
                                 Log.d(TAG,"Delete item clicked.");
                                 File to_delete = new File(m.getMusicPath());
                                 if (to_delete.exists()){
+                                    ArrayList<Music> currentMusicList = musicManager.getCurrentMusicList();
+                                    int index_to_delete = currentMusicList.indexOf(m);
 
                                     //Stop actual player
+                                    musicManager.setCurrentIndex(-1);
                                     Intent serviceIntent = new Intent(mContext, PlayerService.class);
                                     serviceIntent.setAction(Actions.ACTION_END);
                                     mContext.startService(serviceIntent);
 
-                                    to_delete.delete();
-                                    musicList.remove(i);
-                                    ArrayList<Music> currentMusicList = musicManager.getCurrentMusicList();
-                                    if (currentMusicList != null && currentMusicList.size() > 0){
-                                        currentMusicList.remove(currentMusicList.indexOf(m));
-                                        for(int idx = 0; idx < currentMusicList.size(); idx++){
-                                            currentMusicList.get(idx).setMusicIndex(idx);
-                                        }
-                                    }
+                                    //Clear Current Musiclist
+                                    currentMusicList.clear();
+
                                     Toast.makeText(mContext.getApplicationContext(),"Deleted: "+m.getMusicTitle(),Toast.LENGTH_SHORT).show();
-                                    notifyDataSetChanged();
+                                    to_delete.delete();
+                                    deleteCascade(m.getMusicPath());
+
+                                    mContext.sendBroadcast(new Intent(Actions.ACTION_CURRENT_PLAYLIST_CHANGED));
+
                                     Log.d(TAG, "Path: "+m.getMusicPath());
                                     Log.d(TAG,Integer.toString(musicList.size()));
                                 }

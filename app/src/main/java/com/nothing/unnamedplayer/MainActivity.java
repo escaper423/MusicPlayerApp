@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int MY_PERMISSION_REQUEST = 1;
     private static final String[] permissions = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_PHONE_STATE
     };
     private TabLayout tabLayout;
@@ -271,6 +272,7 @@ public class MainActivity extends AppCompatActivity {
 
         pageUpdateFilter.addAction(Actions.ACTION_UPDATE);
         pageUpdateFilter.addAction(Actions.ACTION_CURRENT_PLAYLIST_CHANGED);
+        pageUpdateFilter.addAction(Actions.ACTION_BOOKMARK_UPDATED);
         pageUpdateFilter.addAction(Actions.ACTION_PLAYLIST_TRACK_UPDATED);
 
         playCycleFilter.addAction(Actions.ACTION_RESUME);

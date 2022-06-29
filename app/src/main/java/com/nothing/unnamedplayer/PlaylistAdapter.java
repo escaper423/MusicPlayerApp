@@ -131,6 +131,9 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.ViewHo
                                     editor.commit();
                                     Toast.makeText(mContext.getApplicationContext(), "Deleted Playlist " + listName, Toast.LENGTH_SHORT).show();
 
+                                    Intent deleteIntent = new Intent(Actions.ACTION_BOOKMARK_UPDATED);
+                                    mContext.sendBroadcast(deleteIntent);
+
                                     break;
                                 //Rename Playlist
                                 case R.id.playlist_menu_rename:

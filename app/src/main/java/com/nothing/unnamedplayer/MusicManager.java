@@ -188,6 +188,7 @@ class MusicManager {
             Collections.shuffle(currentMusicList);
             isShuffling = true;
         }
+
     }
 
     public int getPositionByIdx(int idx){

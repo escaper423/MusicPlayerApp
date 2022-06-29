@@ -363,6 +363,11 @@ public class PlayActivity extends AppCompatActivity {
                     musicManager.shuffleList();
                     Toast.makeText(getApplicationContext(), "Shuffle Disabled.", Toast.LENGTH_SHORT).show();
                 }
+
+                //the order of current playlist has changed.
+                Intent in = new Intent(Actions.ACTION_CURRENT_PLAYLIST_CHANGED);
+                sendBroadcast(in);
+
                 break;
         }
     }
