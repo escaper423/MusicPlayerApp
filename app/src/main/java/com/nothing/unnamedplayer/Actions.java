@@ -21,6 +21,6 @@ public class Actions {
     public static final String ACTION_CURRENT_PLAYLIST_CHANGED = "com.nothing.unnamedplayer.current_playlst_changed";
 
     //Need to refresh tabs
-    public static final String ACTION_BOOKMARK_UPDATED = "com.nothing.unnamedplayer.playlist_tab_updated";
-    public static final String ACTION_PLAYLIST_DETAIL_UPDATED = "com.nothing.unnamedplayer.playlist_detail_updated";
+    public static final String ACTION_BOOKMARK_UPDATED = "com.nothing.unnamedplayer.bookmark_updated";
+    public static final String ACTION_DELETE = "com.nothing.unnamedplayer.delete";
 }

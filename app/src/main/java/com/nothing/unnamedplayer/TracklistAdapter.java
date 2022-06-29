@@ -195,7 +195,7 @@ public class TracklistAdapter extends RecyclerView.Adapter<TracklistAdapter.View
                                     to_delete.delete();
                                     deleteCascade(m.getMusicPath());
 
-                                    mContext.sendBroadcast(new Intent(Actions.ACTION_CURRENT_PLAYLIST_CHANGED));
+                                    mContext.sendBroadcast(new Intent(Actions.ACTION_DELETE));
 
                                     Log.d(TAG, "Path: "+m.getMusicPath());
                                     Log.d(TAG,Integer.toString(musicList.size()));

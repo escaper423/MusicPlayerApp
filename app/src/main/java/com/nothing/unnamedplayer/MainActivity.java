@@ -180,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
     protected void showConfirmDialog(){
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle("Required Permissions");
-        builder.setMessage("Read External Storage, Read Phone State");
+        builder.setMessage("Read External Storage, Read/Write Phone State");
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
@@ -204,7 +204,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed(){
         Toast.makeText(getApplicationContext(), "Back Pressed.", Toast.LENGTH_SHORT).show();
-        super.onBackPressed();
+        finish();
     }
 
     @Override
@@ -213,7 +213,7 @@ public class MainActivity extends AppCompatActivity {
         if (musicManager.getMusicPlayer() == null)
             return;
 
-        setupMusicStatus();
+        setupMusicStatusText();
         summarySeekbar.setProgress(musicManager.getMusicPlayer().getCurrentPosition());
         summaryPlayCycle();
     }
@@ -238,7 +238,7 @@ public class MainActivity extends AppCompatActivity {
         handler.postDelayed(runnable, 250);
     }
 
-    private void setupMusicStatus(){
+    private void setupMusicStatusText(){
         if (musicManager.getCurrentIndex() != -1){
             Music m = musicManager.getMusicByIndex(musicManager.getCurrentIndex());
             summaryTitle.setText(m.getMusicTitle());
@@ -251,10 +251,19 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void clearMusicStatusText(){
+        summaryTitle.setText("Unnamed Player");
+        summaryArtist.setText("");
+        summarySeekbar.setProgress(0);
+    }
+
     private void registerBroadcastReceivers(){
         pageUpdateReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+                if (intent.getAction().equals(Actions.ACTION_DELETE)){
+                    clearMusicStatusText();
+                }
                 viewPager.getAdapter().notifyDataSetChanged();
             }
         };
@@ -262,7 +271,7 @@ public class MainActivity extends AppCompatActivity {
         playCycleReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                setupMusicStatus();
+                setupMusicStatusText();
                 summaryPlayCycle();
             }
         };
@@ -274,6 +283,7 @@ public class MainActivity extends AppCompatActivity {
         pageUpdateFilter.addAction(Actions.ACTION_CURRENT_PLAYLIST_CHANGED);
         pageUpdateFilter.addAction(Actions.ACTION_BOOKMARK_UPDATED);
         pageUpdateFilter.addAction(Actions.ACTION_PLAYLIST_TRACK_UPDATED);
+        pageUpdateFilter.addAction(Actions.ACTION_DELETE);
 
         playCycleFilter.addAction(Actions.ACTION_RESUME);
         playCycleFilter.addAction(Actions.ACTION_UPDATE);
