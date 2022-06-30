@@ -1,8 +1,6 @@
 package com.nothing.unnamedplayer;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
@@ -10,24 +8,17 @@ import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-
-import java.io.File;
 import java.util.ArrayList;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import de.hdodenhof.circleimageview.CircleImageView;
 
 public class PlaylistTrackAdapter extends RecyclerView.Adapter<PlaylistTrackAdapter.ViewHolder>{
     private MusicManager musicManager = MusicManager.getInstance();
@@ -67,24 +58,18 @@ public class PlaylistTrackAdapter extends RecyclerView.Adapter<PlaylistTrackAdap
         mContext = context;
         gson = new Gson();
         sp = mContext.getSharedPreferences("playLists",Context.MODE_PRIVATE);
-        SharedPreferences.OnSharedPreferenceChangeListener sharedPreferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-            @Override
-            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-                Log.e(TAG,"sharedPreferenceChanged.");
-                notifyDataSetChanged();
-            }
+        /*
+        SharedPreferences.OnSharedPreferenceChangeListener sharedPreferenceChangeListener = (sharedPreferences, key) -> {
+            Log.e(TAG,"sharedPreferenceChanged.");
+            notifyDataSetChanged();
         };
         sp.registerOnSharedPreferenceChangeListener(sharedPreferenceChangeListener);
-
+*/
         String playlistString = sp.getString(listName,"");
 
         TypeToken<Playlist> token = new TypeToken<Playlist>(){};
         playlist = gson.fromJson(playlistString, token.getType());
         musicList = playlist.getMusicList();
-    }
-
-    public PlaylistTrackAdapter() {
-
     }
 
     @NonNull
@@ -103,80 +88,72 @@ public class PlaylistTrackAdapter extends RecyclerView.Adapter<PlaylistTrackAdap
         viewHolder.musicTitle.setText(m.getMusicTitle());
         viewHolder.musicArtist.setText(m.getMusicArtist());
         viewHolder.musicDuration.setText(musicInfoConverter.durationConvert(m.getMusicDuration()));
-        viewHolder.parentLayout.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {
+        viewHolder.parentLayout.setOnClickListener(view -> {
 
-                //Play Music Function by clicking one of elements in the list
-                musicManager.setCurrentMusicList(mContext,musicList);
-                musicManager.setShuffling(false);
-                musicManager.preparePlaybackSpeed(playlist.getSpeedMult());
-                musicManager.setCurrentIndex(i);
+            //Play Music Function by clicking one of elements in the list
+            musicManager.setCurrentMusicList(mContext,musicList);
+            musicManager.setShuffling(false);
+            musicManager.preparePlaybackSpeed(playlist.getSpeedMult());
+            musicManager.setCurrentIndex(i);
 
-                //Switch Activity
-                Intent in = new Intent(mContext,PlayActivity.class);
-                mContext.startActivity(in);
+            //Switch Activity
+            Intent in = new Intent(mContext,PlayActivity.class);
+            mContext.startActivity(in);
 
-                //Start Service
-                Intent serviceIntent = new Intent(mContext, PlayerService.class);
-                serviceIntent.setAction(Actions.ACTION_PLAY);
-                mContext.startService(serviceIntent);
+            //Start Service
+            Intent serviceIntent = new Intent(mContext, PlayerService.class);
+            serviceIntent.setAction(Actions.ACTION_PLAY);
+            mContext.startService(serviceIntent);
 
-            }
         });
 
 
         //Option Menu
-        viewHolder.musicOption.setOnClickListener(new View.OnClickListener(){
-            public void onClick(final View view){
-                PopupMenu popup = new PopupMenu(mContext,view);
-                popup.getMenuInflater().inflate(R.menu.menu_playlist_trackitem,popup.getMenu());
-                popup.show();
-                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item){
-                        switch(item.getItemId()){
-                            //Add to playlist
-                            case R.id.playlist_trackitem_delete:
-                                Toast.makeText(mContext.getApplicationContext(),"Deleted "+viewHolder.musicTitle.getText().toString()+" from playlist",Toast.LENGTH_SHORT).show();
-                                musicList.remove(i);
-                                musicManager.setCurrentMusicList(mContext,musicList);
-                                SharedPreferences.Editor editor = sp.edit();
+        viewHolder.musicOption.setOnClickListener(view -> {
+            PopupMenu popup = new PopupMenu(mContext,view);
+            popup.getMenuInflater().inflate(R.menu.menu_playlist_trackitem,popup.getMenu());
+            popup.show();
+            popup.setOnMenuItemClickListener(item -> {
+                switch(item.getItemId()){
+                    //Add to playlist
+                    case R.id.playlist_trackitem_delete:
+                        Toast.makeText(mContext.getApplicationContext(),"Deleted "+viewHolder.musicTitle.getText().toString()+" from playlist",Toast.LENGTH_SHORT).show();
+                        musicList.remove(i);
 
-                                //Stop actual player
-                                Intent serviceIntent = new Intent(Actions.ACTION_PLAYLIST_TRACK_UPDATED);
-                                mContext.sendBroadcast(serviceIntent);
+                        //Stop actual player
+                        musicManager.dispatchMusicDelete(mContext);
 
-                                if (musicList.size() == 0){
-                                    editor.remove(listName);
-                                    editor.apply();
+                        SharedPreferences.Editor editor = sp.edit();
+                        if (musicList.size() == 0){
+                            editor.remove(listName);
+                            editor.apply();
 
-                                    //All element deleted.
-                                    Intent in = new Intent(mContext, MainActivity.class);
-                                    in.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                                    mContext.startActivity(in);
-
-                                }
-                                else {
-                                    //deleted element. must rearrange index set
-                                    for (int idx = 0; idx < musicList.size(); idx++) {
-                                        musicList.get(idx).setMusicIndex(idx);
-                                    }
-                                    playlist.setCountTrack(musicList.size());
-                                    String newListString = gson.toJson(playlist);
-                                    editor.putString(listName, newListString);
-                                    editor.apply();
-                                }
-                                break;
-                            default:
-                                break;
+                            //All element deleted.
+                            Intent in = new Intent(mContext, MainActivity.class);
+                            in.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                            mContext.startActivity(in);
                         }
-                        return true;
-                    }
-                });
-            }
+                        else {
+                            //deleted element. must rearrange index set
+                            for (int idx = 0; idx < musicList.size(); idx++) {
+                                musicList.get(idx).setMusicIndex(idx);
+                            }
+
+                            playlist.setCountTrack(musicList.size());
+                            String newListString = gson.toJson(playlist);
+                            editor.putString(listName, newListString);
+                            editor.apply();
+
+                            //notify that the playlist changed.
+                            Intent serviceIntent = new Intent(Actions.ACTION_PLAYLIST_TRACK_UPDATED);
+                            mContext.sendBroadcast(serviceIntent);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                return true;
+            });
         });
 
 

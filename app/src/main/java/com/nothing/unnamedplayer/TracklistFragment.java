@@ -36,12 +36,6 @@ public class TracklistFragment extends Fragment {
         super.onCreate(savedInstanceState);
         musicManager = MusicManager.getInstance();
         musicManager.initMusicList(getContext(),null, MediaStore.Audio.Media.DURATION + ">= 20000" ,null);
-        /*Collections.sort(musicManager.getMusicList(),new Comparator<Music>(){
-            @Override
-            public int compare(Music m1, Music m2){
-                return m1.getMusicTitle().toLowerCase().compareTo(m2.getMusicTitle().toLowerCase());
-            }
-        });*/
         Log.d("MusicList","Music List Size : "+musicManager.getMusicListSize());
     }
 }

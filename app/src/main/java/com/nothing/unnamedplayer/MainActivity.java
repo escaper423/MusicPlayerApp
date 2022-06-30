@@ -3,7 +3,6 @@ package com.nothing.unnamedplayer;
 import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -13,17 +12,12 @@ import android.provider.Settings;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.support.v7.widget.AppCompatSeekBar;
-import android.support.v7.widget.Toolbar;
-import android.view.MotionEvent;
-import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.util.Log;
@@ -73,37 +67,23 @@ public class MainActivity extends AppCompatActivity {
         summaryTitle = findViewById(R.id.main_summary_title);
         summaryArtist = findViewById(R.id.main_summary_artist);
 
-        summaryLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (musicManager.getCurrentIndex() != -1){
-                    Intent in = new Intent(MainActivity.this, PlayActivity.class);
-                    startActivity(in);
-                }
+        summaryLayout.setOnClickListener(v -> {
+            if (musicManager.getCurrentIndex() != -1){
+                Intent in = new Intent(MainActivity.this, PlayActivity.class);
+                startActivity(in);
             }
         });
 
-        summarySeekbar.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return true;
-            }
-        });
+        summarySeekbar.setOnTouchListener((v, event) -> true);
 
         registerBroadcastReceivers();
         checkPermission();
     }
 
-    /*
-        @Override
-        public void onConfigurationChanged(Configuration newConfig) {
-
-        }
-    */
     protected void checkPermission() {
         //at least one of permission is not granted
         Log.i(TAG,"Checking Permission...");
-        ArrayList<String> perms = new ArrayList<String>();
+        ArrayList<String> perms = new ArrayList<>();
 
         for (String p: permissions){
             if (ContextCompat.checkSelfPermission(getApplicationContext(), p) != PackageManager.PERMISSION_GRANTED){
@@ -165,8 +145,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     protected void initMenu() {
-        tabLayout = (TabLayout) findViewById(R.id.main_tablayout);
-        viewPager = (ViewPager) findViewById(R.id.main_pager);
+        tabLayout = findViewById(R.id.main_tablayout);
+        viewPager = findViewById(R.id.main_pager);
         ViewPagerAdapter adaptor = new ViewPagerAdapter(getSupportFragmentManager());
 
         adaptor.AddFragment(new TracklistFragment(), "Stored Tracks");
@@ -181,21 +161,15 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle("Required Permissions");
         builder.setMessage("Read External Storage, Read/Write Phone State");
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                        Uri.fromParts("package", getPackageName(), null));
-                startActivity(intent);
-                finish();
-            };
+        builder.setPositiveButton("OK", (dialogInterface, i) -> {
+            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                    Uri.fromParts("package", getPackageName(), null));
+            startActivity(intent);
+            finish();
         });
-        builder.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                Toast.makeText(getApplicationContext(), "Permission Denied", Toast.LENGTH_SHORT).show();
-                System.exit(3);
-            };
+        builder.setNegativeButton("CANCEL", (dialogInterface, i) -> {
+            Toast.makeText(getApplicationContext(), "Permission Denied", Toast.LENGTH_SHORT).show();
+            System.exit(3);
         });
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
@@ -226,13 +200,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void summaryPlayCycle(){
-        runnable = new Runnable() {
-            @Override
-            public void run() {
-                if (musicManager.getMusicPlayer() != null && musicManager.getMusicPlayer().isPlaying()) {
-                    summarySeekbar.setProgress(musicManager.getMusicPlayer().getCurrentPosition());
-                    summaryPlayCycle();
-                }
+        runnable = () -> {
+            if (musicManager.getMusicPlayer() != null && musicManager.getMusicPlayer().isPlaying()) {
+                summarySeekbar.setProgress(musicManager.getMusicPlayer().getCurrentPosition());
+                summaryPlayCycle();
             }
         };
         handler.postDelayed(runnable, 250);

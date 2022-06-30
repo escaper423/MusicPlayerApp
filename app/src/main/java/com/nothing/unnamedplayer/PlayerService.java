@@ -1,35 +1,23 @@
 package com.nothing.unnamedplayer;
 
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothHeadset;
-import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.res.Configuration;
-import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.media.session.MediaSession;
 import android.net.Uri;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
-import android.support.v4.media.session.MediaSessionCompat;
-import android.text.Html;
 import android.util.Log;
 import android.widget.RemoteViews;
-import android.widget.Toast;
-
-import com.nothing.unnamedplayer.R;
 
 import java.io.IOException;
 
@@ -53,12 +41,9 @@ public class PlayerService extends Service {
         notificationManager = NotificationManagerCompat.from(this);
         musicManager = MusicManager.getInstance();
         mediaPlayer = musicManager.getMusicPlayer();
-        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                if (!mp.isLooping()) {
-                    playNextMusic();
-                }
+        mediaPlayer.setOnCompletionListener(mp -> {
+            if (!mp.isLooping()) {
+                playNextMusic();
             }
         });
 

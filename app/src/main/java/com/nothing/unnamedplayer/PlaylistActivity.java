@@ -1,7 +1,6 @@
 package com.nothing.unnamedplayer;
 
 import static com.nothing.unnamedplayer.musicInfoConverter.durationConvert;
-import static com.nothing.unnamedplayer.musicInfoConverter.getBitmapFromString;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -20,8 +19,6 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
-import java.util.ArrayList;
 
 public class PlaylistActivity extends AppCompatActivity {
     private static final String TAG = "PlayListActivity";

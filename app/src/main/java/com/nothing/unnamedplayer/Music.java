@@ -1,6 +1,5 @@
 package com.nothing.unnamedplayer;
 
-import android.graphics.Bitmap;
 import android.support.annotation.Nullable;
 
 public class Music {

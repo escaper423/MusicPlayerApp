@@ -15,7 +15,6 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 
 //using singleton pattern to be used as global resource storage class (playlist)
 class MusicManager {
@@ -23,8 +22,8 @@ class MusicManager {
     private static MusicManager musicManager = null;
 
     //Music lists and MediaPlayer object.
-    private ArrayList<Music> storedMusicList;   //stores all musics in the device.
-    private ArrayList<Music> currentMusicList;  //currently using playlist.
+    private final ArrayList<Music> storedMusicList;   //stores all musics in the device.
+    private final ArrayList<Music> currentMusicList;  //currently using playlist.
     private MediaPlayer mediaPlayer;
     private boolean hasInterrupted = false;
 
@@ -129,8 +128,10 @@ class MusicManager {
         return storedMusicList;
     }
     public void setCurrentMusicList(Context context, ArrayList<Music> m){
-        currentMusicList = m;
-
+        currentMusicList.clear();
+        for(int i = 0; i < m.size(); i++){
+            currentMusicList.add(m.get(i));
+        }
         //Send musiclist update broadcast
         Intent playlistChangedBroadcast = new Intent(Actions.ACTION_CURRENT_PLAYLIST_CHANGED);
         context.sendBroadcast(playlistChangedBroadcast);
@@ -164,6 +165,12 @@ class MusicManager {
 
             } while (songCursor.moveToNext());
         }
+        try{
+            songCursor.close();
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
     //Resets current playlist. from stored music list
@@ -177,12 +184,7 @@ class MusicManager {
     //shuffles the current list for shuffle feature.
     public void shuffleList() {
         if (isShuffling == true) {
-            Collections.sort(currentMusicList, new Comparator<Music>() {
-                @Override
-                public int compare(Music m1, Music m2) {
-                    return m1.getMusicIndex() > m2.getMusicIndex() ? 1 : -1;
-                }
-            });
+            Collections.sort(currentMusicList, (m1, m2) -> m1.getMusicIndex() > m2.getMusicIndex() ? 1 : -1);
             isShuffling = false;
         } else {
             Collections.shuffle(currentMusicList);
@@ -210,5 +212,16 @@ class MusicManager {
             bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
         }
         return bitmap;
+    }
+
+    public void dispatchMusicDelete(Context context){
+        musicManager.setCurrentIndex(-1);
+        currentMusicList.clear();
+
+        Intent serviceIntent = new Intent(context, PlayerService.class);
+        serviceIntent.setAction(Actions.ACTION_END);
+        context.startService(serviceIntent);
+
+        context.sendBroadcast(new Intent(Actions.ACTION_DELETE));
     }
 }

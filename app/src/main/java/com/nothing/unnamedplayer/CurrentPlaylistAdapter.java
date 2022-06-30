@@ -1,33 +1,17 @@
 package com.nothing.unnamedplayer;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
-import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-
-import java.io.File;
 import java.util.ArrayList;
-
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import de.hdodenhof.circleimageview.CircleImageView;
 
 public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylistAdapter.ViewHolder>{
     private MusicManager musicManager = MusicManager.getInstance();
@@ -51,10 +35,6 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
             musicDuration = itemView.findViewById(R.id.cmusicDuration);
             parentLayout = itemView.findViewById(R.id.ctrack_list);
         }
-    }
-
-    public CurrentPlaylistAdapter() {
-
     }
 
     public CurrentPlaylistAdapter(ArrayList<Music> m, Context context) {
@@ -85,25 +65,20 @@ public class CurrentPlaylistAdapter extends RecyclerView.Adapter<CurrentPlaylist
         viewHolder.musicTitle.setText(m.getMusicTitle());
         viewHolder.musicArtist.setText(m.getMusicArtist());
         viewHolder.musicDuration.setText(musicInfoConverter.durationConvert(m.getMusicDuration()));
-        viewHolder.parentLayout.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {
-                //Play Music Function by clicking one of elements in the list
-                musicManager.setCurrentIndex(i);
+        viewHolder.parentLayout.setOnClickListener(view -> {
+            //Play Music Function by clicking one of elements in the list
+            musicManager.setCurrentIndex(i);
 
-                //Switch Activity
-                Intent in = new Intent(mContext,PlayActivity.class);
-                in.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                mContext.startActivity(in);
+            //Switch Activity
+            Intent in = new Intent(mContext,PlayActivity.class);
+            in.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            mContext.startActivity(in);
 
-                //Start Service
-                Intent serviceIntent = new Intent(mContext, PlayerService.class);
-                serviceIntent.setAction(Actions.ACTION_PLAY);
-                mContext.startService(serviceIntent);
+            //Start Service
+            Intent serviceIntent = new Intent(mContext, PlayerService.class);
+            serviceIntent.setAction(Actions.ACTION_PLAY);
+            mContext.startService(serviceIntent);
 
-            }
         });
     }
 
