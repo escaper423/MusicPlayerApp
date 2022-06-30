@@ -29,7 +29,8 @@ import java.util.ArrayList;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 
-/* TODO : delete function properly
+/* TODO : Upgrade project version
+          further refactoring
 
 */
 public class MainActivity extends AppCompatActivity {
