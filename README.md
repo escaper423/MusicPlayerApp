@@ -1,19 +1,30 @@
-# MusicPlayerApp
+# MusicPlayerApp (UnnamedPlayer)
 Music player application with playback speed adjustment.
 
+## Enviroments
+- IDE: Android Studio
+- minSdkVersion: 24
+- targetSdkVersion: 28
+### things used in this project
+- SharedPrefereces (Custom Playlists)
+- MediaPlayer (Basic musicplayer features)
+- ContentProvider (Fetching musics in the storage)
+
 ## Features
-- Load all music files from internal storage.
-- Basic music player features: play, pause/resume, prev, next, loop and list shuffling.
+- Load all music files from the storage.
+- Basic music player features: play, pause/resume, prev, next, loop and playlist shuffling.
 - Playback speed adjustmentment. (0.25x ~ 2.00x)
-- Playlist
+- Custom Playlists
 
 ## Details
-- Playing music in service (you can control through foreground notification service).
-- Playlist also have its playback speed.
+- Musicplayer service (you can control it through foreground notification service).
+- Playlists also have its playback speed.
 - Detaching all earphones (bluetooth earphone included), phone calling can pause the player while playing.
+- You can Add/Delete, Adjust playback speed, Rename each custom playlists.
+- You can also delete actual music files. 
 
 ## Screenshots
-### Main activity (musiclist)
+### Main activity
 <img src="https://user-images.githubusercontent.com/41889090/174980116-ec2f2313-58ca-4e5d-919b-25fcffbb9d68.jpg" width="300">
 
 ### Playlist
